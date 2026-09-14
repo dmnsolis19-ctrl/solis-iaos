@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "1.0",
+  "profiles": [
+    {
+      "id": "wecon-h-ag",
+      "vendor": "WECON",
+      "modelFamily": "V-BOX H-AG",
+      "role": "mqtt-edge-gateway",
+      "certificationStatus": "UNVERIFIED",
+      "notes": "Primer candidato físico; protocolo PLC y funciones MQTT deben verificarse con firmware y proyecto V-NET reales."
+    },
+    {
+      "id": "siemens-s7",
+      "vendor": "Siemens",
+      "modelFamily": "S7-1200/S7-1500",
+      "role": "plc-source",
+      "candidateProtocols": ["S7-TCP", "MODBUS-TCP", "OPC-UA"],
+      "certificationStatus": "UNVERIFIED"
+    },
+    {
+      "id": "mitsubishi-fx5u",
+      "vendor": "Mitsubishi Electric",
+      "modelFamily": "MELSEC iQ-F FX5U",
+      "role": "plc-source",
+      "candidateProtocols": ["SLMP", "MC-PROTOCOL", "MODBUS-TCP", "MODBUS-RTU"],
+      "certificationStatus": "UNVERIFIED"
+    },
+    {
+      "id": "schneider-modicon",
+      "vendor": "Schneider Electric",
+      "modelFamily": "Modicon",
+      "role": "plc-source",
+      "candidateProtocols": ["MODBUS-TCP", "MODBUS-RTU"],
+      "certificationStatus": "UNVERIFIED"
+    },
+    {
+      "id": "allen-bradley",
+      "vendor": "Rockwell Automation",
+      "modelFamily": "Allen-Bradley",
+      "role": "plc-source",
+      "candidateProtocols": ["ETHERNET-IP-CIP"],
+      "certificationStatus": "UNVERIFIED"
+    },
+    {
+      "id": "generic-mqtt",
+      "vendor": "Generic",
+      "modelFamily": "MQTT-capable gateway",
+      "role": "mqtt-edge-gateway",
+      "candidateProtocols": ["MQTT-5", "MQTT-3.1.1"],
+      "certificationStatus": "UNVERIFIED"
+    }
+  ]
+}

@@ -1,8 +1,9 @@
-# SOLIS IAOS — V0.3 Telemetry Vertical Slice
+# SOLIS IAOS — V0.4 Vendor-Neutral Gateway Lab
 
-V0.3 agrega una ruta rápida y funcional de telemetría local sobre la Foundation
-V0.2.0. La arquitectura empresarial original permanece disponible y sin
-reemplazo.
+V0.4 amplía la ruta funcional local con diez señales de proceso, calidad y
+heartbeat del gateway. Mantiene el contrato MQTT v1 y prepara perfiles de
+integración para WECON, Siemens, Mitsubishi, Schneider, Allen-Bradley y gateways
+MQTT genéricos sin declarar compatibilidad física antes de FAT.
 
 ## Inicio rápido del MVP
 
@@ -14,7 +15,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\mvp-start.ps1
 
 Después abra:
 
-- Grafana: `http://localhost:3000/d/solis-telemetry-v030`
+- Grafana: `http://localhost:3000/d/solis-gateway-lab-v040`
 - Node-RED: `http://localhost:1880`
 - InfluxDB: `http://localhost:8086`
 
@@ -24,15 +25,14 @@ Compruebe la ruta completa con:
 powershell -ExecutionPolicy Bypass -File .\scripts\mvp-smoke.ps1
 ```
 
-La guía completa está en `docs/vertical-slice-v0.3/LOCAL-RUNBOOK.md` y la
-decisión de alcance en `docs/vertical-slice-v0.3/ADR-042-LOCAL-TELEMETRY-VERTICAL-SLICE.md`.
+La decisión y el contrato de laboratorio están en `docs/vertical-slice-v0.4/`.
 
-## Arquitectura V0.3
+## Arquitectura V0.4
 
 `Gateway Simulator → Mosquitto → Node-RED → InfluxDB → Grafana`
 
-Esta ruta usa únicamente datos sintéticos. No autoriza PLC, OT, Internet,
-control remoto ni AWS.
+Esta ruta usa únicamente datos sintéticos. No autoriza todavía conexión con
+PLC/red OT, Internet, control remoto ni AWS.
 
 ---
 

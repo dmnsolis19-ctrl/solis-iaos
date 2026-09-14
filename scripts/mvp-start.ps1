@@ -29,8 +29,8 @@ if ($LASTEXITCODE -ne 0) {
 docker compose --env-file .env.mvp -f infra/mvp/compose.yaml ps
 
 Write-Host ""
-Write-Host "SOLIS IAOS V0.3 está funcionando." -ForegroundColor Green
-Write-Host "Grafana:  http://localhost:3000/d/solis-telemetry-v030"
+Write-Host "SOLIS IAOS V0.4 está funcionando." -ForegroundColor Green
+Write-Host "Grafana:  http://localhost:3000/d/solis-gateway-lab-v040"
 Write-Host "Node-RED: http://localhost:1880"
 Write-Host "InfluxDB: http://localhost:8086"
 Write-Host "MQTT LAN: puerto 1883"

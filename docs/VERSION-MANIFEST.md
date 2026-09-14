@@ -1,4 +1,4 @@
-# SOLIS IAOS — Manifiesto de versiones V0.3
+# SOLIS IAOS — Manifiesto de versiones V0.4
 
 **Fecha de verificación:** 2026-09-13
 
@@ -18,7 +18,7 @@
 | AWS Provider |         6.56.0 | Recursos AWS                  |
 | Trivy Action |         0.36.0 | Escaneo filesystem e imágenes |
 | Trivy CLI    |         0.69.3 | Validación local en Docker    |
-| Node-RED     |          5.0.7 | Flujo local de ingesta V0.3   |
+| Node-RED     |          5.0.7 | Ingesta y heartbeat local V0.4 |
 | InfluxDB OSS |          2.8.0 | Series temporales del prototipo |
 | Grafana      |         12.1.1 | Dashboard local provisionado  |
 

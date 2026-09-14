@@ -4,7 +4,7 @@ import { relative, resolve } from "node:path";
 
 const root = process.cwd();
 const excludedDirectories = new Set([".git", ".turbo", "node_modules"]);
-const excludedFiles = new Set(["CHECKSUMS.sha256"]);
+const excludedFiles = new Set(["CHECKSUMS.sha256", ".env", ".env.mvp"]);
 
 async function collect(directory) {
   const entries = await readdir(directory, { withFileTypes: true });

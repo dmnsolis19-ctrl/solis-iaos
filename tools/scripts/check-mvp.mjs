@@ -97,7 +97,7 @@ if (dashboard.uid !== "solis-telemetry-v030" || dashboard.panels?.length < 5) {
 console.log(
   JSON.stringify({
     event: "mvp.static-check",
-    version: "0.3.0",
+    version: "0.3.1",
     services: 5,
     nodeRedPositiveRoute: "passed",
     nodeRedNegativeRoute: "passed",

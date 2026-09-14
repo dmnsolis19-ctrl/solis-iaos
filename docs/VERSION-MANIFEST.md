@@ -12,14 +12,14 @@
 | React        |         19.2.8 | Shell web                     |
 | Vite         |          8.1.5 | Build web                     |
 | PostgreSQL   |          17.10 | Local y RDS                   |
-| Mosquitto    |          2.1.2 | Broker MQTT local             |
+| Mosquitto    |          2.1.2-alpine | Broker MQTT local             |
 | LocalStack   |         4.14.0 | SQS local                     |
 | Terraform    |         1.15.8 | Landing zone                  |
 | AWS Provider |         6.56.0 | Recursos AWS                  |
 | Trivy Action |         0.36.0 | Escaneo filesystem e imágenes |
 | Trivy CLI    |         0.69.3 | Validación local en Docker    |
 | Node-RED     |          5.0.7 | Flujo local de ingesta V0.3   |
-| InfluxDB OSS |          2.9.0 | Series temporales del prototipo |
+| InfluxDB OSS |          2.8.0 | Series temporales del prototipo |
 | Grafana      |         12.1.1 | Dashboard local provisionado  |
 
 Node-RED, InfluxDB y Grafana pertenecen exclusivamente al corte vertical local

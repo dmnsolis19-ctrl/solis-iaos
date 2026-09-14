@@ -1,6 +1,6 @@
 {
   "name": "solis-iaos",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "private": true,
   "description": "SOLIS IAOS Foundation plus V0.3 local telemetry vertical slice",
   "license": "UNLICENSED",

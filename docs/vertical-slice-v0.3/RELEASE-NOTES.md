@@ -1,8 +1,8 @@
-# SOLIS IAOS V0.3.0 — notas de entrega
+# SOLIS IAOS V0.3.1 — notas de entrega
 
 ## Resultado
 
-V0.3.0 incorpora el primer recorrido funcional local de telemetría sintética:
+V0.3.1 incorpora el primer recorrido funcional local de telemetría sintética:
 
 `Gateway Simulator → Mosquitto → Node-RED → InfluxDB → Grafana`.
 

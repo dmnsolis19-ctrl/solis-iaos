@@ -1,0 +1,24 @@
+{
+  "name": "@solis/contracts",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "files": [
+    "openapi",
+    "mqtt",
+    "examples"
+  ],
+  "scripts": {
+    "build": "node scripts/validate.mjs",
+    "typecheck": "node --check scripts/validate.mjs",
+    "test:unit": "node scripts/validate.mjs",
+    "test:integration": "node scripts/validate.mjs",
+    "validate": "redocly lint openapi/openapi-v1.yaml && node scripts/validate.mjs"
+  },
+  "devDependencies": {
+    "@redocly/cli": "2.40.0",
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1",
+    "yaml": "2.9.0"
+  }
+}

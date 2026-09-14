@@ -1,0 +1,12 @@
+[
+  {
+    "id": "0001_schema_v1",
+    "up": "0001_schema_v1.up.sql",
+    "down": "0001_schema_v1.down.sql"
+  },
+  {
+    "id": "0002_runtime_roles",
+    "up": "0002_runtime_roles.up.sql",
+    "down": "0002_runtime_roles.down.sql"
+  }
+]

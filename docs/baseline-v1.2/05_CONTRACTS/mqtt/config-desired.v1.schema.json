@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.solis-iaos.example/mqtt/config-desired.v1.schema.json",
+  "title": "SOLIS IAOS Desired Gateway Configuration v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "configId",
+    "gatewayId",
+    "configVersion",
+    "issuedAt",
+    "adapters",
+    "mappings"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "1.0" },
+    "configId": { "type": "string", "format": "uuid" },
+    "gatewayId": { "type": "string", "format": "uuid" },
+    "configVersion": { "type": "integer", "minimum": 1 },
+    "issuedAt": { "type": "string", "format": "date-time" },
+    "notBefore": { "type": ["string", "null"], "format": "date-time" },
+    "adapters": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 16,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["adapterId", "protocol", "enabled", "pollIntervalMs", "parameters"],
+        "properties": {
+          "adapterId": { "type": "string", "format": "uuid" },
+          "protocol": { "type": "string", "enum": ["SIMULATOR", "MODBUS_TCP", "MODBUS_RTU"] },
+          "enabled": { "type": "boolean" },
+          "pollIntervalMs": { "type": "integer", "minimum": 100, "maximum": 3600000 },
+          "parameters": {
+            "type": "object",
+            "description": "Non-secret protocol parameters validated by the adapter-specific schema."
+          },
+          "secretReference": {
+            "type": ["string", "null"],
+            "maxLength": 256,
+            "description": "Opaque local reference; never contains a secret value."
+          }
+        }
+      }
+    },
+    "mappings": {
+      "type": "array",
+      "maxItems": 5000,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "mappingId",
+          "adapterId",
+          "variableId",
+          "address",
+          "dataType",
+          "unitCode",
+          "enabled"
+        ],
+        "properties": {
+          "mappingId": { "type": "string", "format": "uuid" },
+          "adapterId": { "type": "string", "format": "uuid" },
+          "variableId": { "type": "string", "format": "uuid" },
+          "address": { "type": "string", "minLength": 1, "maxLength": 256 },
+          "dataType": { "type": "string", "enum": ["BOOLEAN", "INT64", "FLOAT64", "STRING"] },
+          "unitCode": { "type": "string", "minLength": 1, "maxLength": 32 },
+          "scale": { "type": "number", "default": 1 },
+          "offset": { "type": "number", "default": 0 },
+          "enabled": { "type": "boolean" }
+        }
+      }
+    }
+  }
+}
+

@@ -1,0 +1,1258 @@
+openapi: 3.1.0
+info:
+  title: SOLIS IAOS API
+  version: 1.0.0
+  description: >
+    Contrato inicial del MVP read-mostly. No contiene operaciones de control
+    remoto, escritura de setpoints, arranque/parada ni bypass.
+  license:
+    name: Proprietary — SOLIS Ingeniería y Servicios SpA
+    identifier: LicenseRef-SOLIS-Proprietary
+servers:
+  - url: https://api.staging.solis-iaos.example/api/v1
+    description: Staging
+  - url: https://api.solis-iaos.example/api/v1
+    description: Pilot Production
+security:
+  - oidc: []
+tags:
+  - name: Tenants
+    description: Contexto contractual aislado y visible por membership.
+  - name: Sites
+    description: Plantas o sitios industriales dentro de un tenant.
+  - name: Assets
+    description: Inventario Asset-First, plantillas y variables.
+  - name: Variables
+    description: Último valor e históricos de variables autorizadas.
+  - name: Gateways
+    description: Ciclo de identidad, configuración y estado Edge.
+  - name: Alarms
+    description: Ciclo de alarmas y reconocimiento auditado.
+  - name: Audit
+    description: Consulta de evidencia append-only.
+  - name: Reports
+    description: Exportaciones y reportes operacionales limitados.
+paths:
+  /tenants/{tenantId}:
+    get:
+      tags: [Tenants]
+      operationId: getTenant
+      summary: Consultar tenant
+      x-required-permission: tenant.read
+      parameters:
+        - $ref: "#/components/parameters/TenantId"
+      responses:
+        "200":
+          description: Tenant visible para la membership efectiva
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tenant"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /tenants/{tenantId}/sites:
+    get:
+      tags: [Sites]
+      operationId: listSites
+      summary: Listar sitios autorizados
+      x-required-permission: site.read
+      parameters:
+        - $ref: "#/components/parameters/TenantId"
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          description: Página de sitios
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Page"
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Site"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+    post:
+      tags: [Sites]
+      operationId: createSite
+      summary: Crear sitio
+      x-required-permission: site.manage
+      parameters:
+        - $ref: "#/components/parameters/TenantId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSite"
+      responses:
+        "201":
+          description: Sitio creado
+          headers:
+            Location:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Site"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /tenants/{tenantId}/sites/{siteId}/assets:
+    get:
+      tags: [Assets]
+      operationId: listAssets
+      summary: Listar activos de un sitio
+      x-required-permission: asset.read
+      parameters:
+        - $ref: "#/components/parameters/TenantId"
+        - $ref: "#/components/parameters/SiteId"
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Limit"
+        - name: status
+          in: query
+          schema:
+            $ref: "#/components/schemas/AssetStatus"
+        - name: q
+          in: query
+          schema:
+            type: string
+            maxLength: 100
+      responses:
+        "200":
+          description: Página de activos
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Page"
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/AssetSummary"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+    post:
+      tags: [Assets]
+      operationId: createAsset
+      summary: Crear activo desde una versión de plantilla
+      x-required-permission: asset.manage
+      parameters:
+        - $ref: "#/components/parameters/TenantId"
+        - $ref: "#/components/parameters/SiteId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAsset"
+      responses:
+        "201":
+          description: Activo creado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Asset"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /tenants/{tenantId}/assets/{assetId}:
+    get:
+      tags: [Assets]
+      operationId: getAsset
+      summary: Consultar activo y variables
+      x-required-permission: asset.read
+      parameters:
+        - $ref: "#/components/parameters/TenantId"
+        - $ref: "#/components/parameters/AssetId"
+      responses:
+        "200":
+          description: Activo
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Asset"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    patch:
+      tags: [Assets]
+      operationId: updateAsset
+      summary: Actualizar metadatos no operacionales del activo
+      description: No modifica PLC, setpoints ni proceso.
+      x-required-permission: asset.manage
+      parameters:
+        - $ref: "#/components/parameters/TenantId"
+        - $ref: "#/components/parameters/AssetId"
+        - $ref: "#/components/parameters/IfMatch"
+      requestBody:
+        required: true
+        content:
+          application/merge-patch+json:
+            schema:
+              $ref: "#/components/schemas/UpdateAsset"
+      responses:
+        "200":
+          description: Activo actualizado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Asset"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "412":
+          $ref: "#/components/responses/PreconditionFailed"
+  /tenants/{tenantId}/variables/{variableId}/latest:
+    get:
+      tags: [Variables]
+      operationId: getLatestValue
+      summary: Consultar último valor aceptado
+      x-required-permission: telemetry.read
+      parameters:
+        - $ref: "#/components/parameters/TenantId"
+        - $ref: "#/components/parameters/VariableId"
+      responses:
+        "200":
+          description: Último valor o estado sin datos
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LatestValue"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /tenants/{tenantId}/variables/{variableId}/history:
+    get:
+      tags: [Variables]
+      operationId: getVariableHistory
+      summary: Consultar histórico crudo o agregado
+      x-required-permission: telemetry.read
+      parameters:
+        - $ref: "#/components/parameters/TenantId"
+        - $ref: "#/components/parameters/VariableId"
+        - name: from
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+        - name: resolution
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [raw, 1m, 1h, auto]
+        - name: maxPoints
+          in: query
+          schema:
+            type: integer
+            minimum: 10
+            maximum: 10000
+            default: 2000
+      responses:
+        "200":
+          description: Serie temporal limitada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HistorySeries"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "413":
+          description: Intervalo o resolución excede el límite
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+  /tenants/{tenantId}/gateways:
+    get:
+      tags: [Gateways]
+      operationId: listGateways
+      summary: Listar gateways autorizados
+      x-required-permission: gateway.read
+      parameters:
+        - $ref: "#/components/parameters/TenantId"
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          description: Página de gateways
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Page"
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Gateway"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+    post:
+      tags: [Gateways]
+      operationId: registerGateway
+      summary: Registrar gateway sin entregar clave privada
+      x-required-permission: gateway.manage
+      parameters:
+        - $ref: "#/components/parameters/TenantId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterGateway"
+      responses:
+        "201":
+          description: Gateway en estado REGISTERED
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Gateway"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /tenants/{tenantId}/gateways/{gatewayId}/revocations:
+    post:
+      tags: [Gateways]
+      operationId: revokeGateway
+      summary: Revocar identidad y acceso del gateway
+      x-required-permission: gateway.revoke
+      parameters:
+        - $ref: "#/components/parameters/TenantId"
+        - $ref: "#/components/parameters/GatewayId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [reason]
+              properties:
+                reason:
+                  type: string
+                  minLength: 10
+                  maxLength: 500
+      responses:
+        "202":
+          description: Revocación aceptada y auditada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Gateway"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /tenants/{tenantId}/gateways/{gatewayId}/config/desired:
+    put:
+      tags: [Gateways]
+      operationId: publishDesiredGatewayConfig
+      summary: Publicar configuración de adquisición
+      description: >
+        Solo cambia adquisición y mapeo del Edge. No contiene comandos,
+        setpoints, lógica PLC, firmware OTA ni secretos.
+      x-required-permission: gateway.config.manage
+      parameters:
+        - $ref: "#/components/parameters/TenantId"
+        - $ref: "#/components/parameters/GatewayId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DesiredConfigRequest"
+      responses:
+        "202":
+          description: Versión deseada publicada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConfigState"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /tenants/{tenantId}/gateways/{gatewayId}/config/reported:
+    get:
+      tags: [Gateways]
+      operationId: getReportedGatewayConfig
+      summary: Consultar estado de aplicación de configuración
+      x-required-permission: gateway.read
+      parameters:
+        - $ref: "#/components/parameters/TenantId"
+        - $ref: "#/components/parameters/GatewayId"
+      responses:
+        "200":
+          description: Estado reportado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConfigState"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /tenants/{tenantId}/alarms:
+    get:
+      tags: [Alarms]
+      operationId: listAlarms
+      summary: Listar alarmas
+      x-required-permission: alarm.read
+      parameters:
+        - $ref: "#/components/parameters/TenantId"
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Limit"
+        - name: siteId
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: state
+          in: query
+          schema:
+            $ref: "#/components/schemas/AlarmState"
+        - name: severity
+          in: query
+          schema:
+            $ref: "#/components/schemas/AlarmSeverity"
+      responses:
+        "200":
+          description: Página de alarmas
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Page"
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Alarm"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+  /tenants/{tenantId}/alarms/{alarmId}:
+    get:
+      tags: [Alarms]
+      operationId: getAlarm
+      summary: Consultar alarma y transiciones
+      x-required-permission: alarm.read
+      parameters:
+        - $ref: "#/components/parameters/TenantId"
+        - $ref: "#/components/parameters/AlarmId"
+      responses:
+        "200":
+          description: Alarma
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Alarm"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /tenants/{tenantId}/alarms/{alarmId}/acknowledgements:
+    post:
+      tags: [Alarms]
+      operationId: acknowledgeAlarm
+      summary: Reconocer alarma
+      x-required-permission: alarm.acknowledge
+      parameters:
+        - $ref: "#/components/parameters/TenantId"
+        - $ref: "#/components/parameters/AlarmId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [comment]
+              properties:
+                comment:
+                  type: string
+                  minLength: 3
+                  maxLength: 500
+      responses:
+        "201":
+          description: Reconocimiento registrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Alarm"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /tenants/{tenantId}/audit-events:
+    get:
+      tags: [Audit]
+      operationId: listAuditEvents
+      summary: Consultar auditoría
+      x-required-permission: audit.read
+      parameters:
+        - $ref: "#/components/parameters/TenantId"
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Limit"
+        - name: from
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: action
+          in: query
+          schema:
+            type: string
+            maxLength: 100
+      responses:
+        "200":
+          description: Página de auditoría
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Page"
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/AuditEvent"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+  /tenants/{tenantId}/reports/operational:
+    post:
+      tags: [Reports]
+      operationId: requestOperationalReport
+      summary: Solicitar reporte operacional fijo
+      x-required-permission: report.create
+      parameters:
+        - $ref: "#/components/parameters/TenantId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [siteId, from, to, format]
+              properties:
+                siteId:
+                  type: string
+                  format: uuid
+                from:
+                  type: string
+                  format: date-time
+                to:
+                  type: string
+                  format: date-time
+                format:
+                  type: string
+                  enum: [CSV, PDF]
+      responses:
+        "202":
+          description: Job de reporte aceptado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Job"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+components:
+  securitySchemes:
+    oidc:
+      type: openIdConnect
+      openIdConnectUrl: https://auth.solis-iaos.example/.well-known/openid-configuration
+  parameters:
+    TenantId:
+      name: tenantId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    SiteId:
+      name: siteId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    AssetId:
+      name: assetId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    VariableId:
+      name: variableId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    GatewayId:
+      name: gatewayId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    AlarmId:
+      name: alarmId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    Cursor:
+      name: cursor
+      in: query
+      schema:
+        type: string
+        maxLength: 512
+    Limit:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 200
+        default: 50
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      schema:
+        type: string
+        minLength: 16
+        maxLength: 128
+    IfMatch:
+      name: If-Match
+      in: header
+      required: true
+      schema:
+        type: string
+  responses:
+    BadRequest:
+      description: Solicitud inválida
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+    Unauthorized:
+      description: Token ausente o inválido
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+    Forbidden:
+      description: Membership, scope o permiso insuficiente
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+    NotFound:
+      description: Recurso inexistente o no visible en el scope efectivo
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+    Conflict:
+      description: Conflicto de estado, versión o idempotencia
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+    PreconditionFailed:
+      description: La versión del recurso cambió
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+    TooManyRequests:
+      description: Límite temporal excedido
+      headers:
+        Retry-After:
+          schema:
+            type: integer
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+  schemas:
+    Page:
+      type: object
+      required: [items, page]
+      properties:
+        items:
+          type: array
+          items: {}
+        page:
+          type: object
+          required: [hasMore]
+          properties:
+            nextCursor:
+              type: [string, "null"]
+            hasMore:
+              type: boolean
+    Problem:
+      type: object
+      additionalProperties: false
+      required: [type, title, status, code, correlationId]
+      properties:
+        type:
+          type: string
+          format: uri
+        title:
+          type: string
+        status:
+          type: integer
+          minimum: 400
+          maximum: 599
+        code:
+          type: string
+          pattern: "^[A-Z][A-Z0-9_]{2,63}$"
+        detail:
+          type: string
+        correlationId:
+          type: string
+          format: uuid
+        errors:
+          type: array
+          maxItems: 100
+          items:
+            type: object
+            required: [field, code]
+            properties:
+              field:
+                type: string
+              code:
+                type: string
+              message:
+                type: string
+    Tenant:
+      type: object
+      additionalProperties: false
+      required: [id, code, name, status, version]
+      properties:
+        id:
+          type: string
+          format: uuid
+        code:
+          type: string
+        name:
+          type: string
+        status:
+          type: string
+          enum: [ACTIVE, SUSPENDED, CLOSED]
+        version:
+          type: integer
+          minimum: 1
+    CreateSite:
+      type: object
+      additionalProperties: false
+      required: [code, name, timezone]
+      properties:
+        code:
+          type: string
+          pattern: "^[A-Z0-9][A-Z0-9_-]{1,31}$"
+        name:
+          type: string
+          minLength: 2
+          maxLength: 120
+        timezone:
+          type: string
+          example: America/Santiago
+    Site:
+      allOf:
+        - $ref: "#/components/schemas/CreateSite"
+        - type: object
+          required: [id, tenantId, status, version]
+          properties:
+            id:
+              type: string
+              format: uuid
+            tenantId:
+              type: string
+              format: uuid
+            status:
+              type: string
+              enum: [ACTIVE, INACTIVE]
+            version:
+              type: integer
+              minimum: 1
+    AssetStatus:
+      type: string
+      enum: [ACTIVE, INACTIVE, RETIRED]
+    AssetSummary:
+      type: object
+      additionalProperties: false
+      required: [id, tenantId, siteId, code, name, status, version]
+      properties:
+        id:
+          type: string
+          format: uuid
+        tenantId:
+          type: string
+          format: uuid
+        siteId:
+          type: string
+          format: uuid
+        code:
+          type: string
+        name:
+          type: string
+        status:
+          $ref: "#/components/schemas/AssetStatus"
+        version:
+          type: integer
+          minimum: 1
+    CreateAsset:
+      type: object
+      additionalProperties: false
+      required: [code, name, templateVersionId]
+      properties:
+        code:
+          type: string
+          minLength: 1
+          maxLength: 64
+        name:
+          type: string
+          minLength: 2
+          maxLength: 160
+        areaId:
+          type: [string, "null"]
+          format: uuid
+        parentAssetId:
+          type: [string, "null"]
+          format: uuid
+        templateVersionId:
+          type: string
+          format: uuid
+        description:
+          type: [string, "null"]
+          maxLength: 2000
+    UpdateAsset:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 160
+        description:
+          type: [string, "null"]
+          maxLength: 2000
+        status:
+          $ref: "#/components/schemas/AssetStatus"
+    Asset:
+      allOf:
+        - $ref: "#/components/schemas/AssetSummary"
+        - type: object
+          required: [templateVersionId, variables]
+          properties:
+            areaId:
+              type: [string, "null"]
+              format: uuid
+            parentAssetId:
+              type: [string, "null"]
+              format: uuid
+            templateVersionId:
+              type: string
+              format: uuid
+            description:
+              type: [string, "null"]
+            variables:
+              type: array
+              items:
+                $ref: "#/components/schemas/Variable"
+    Variable:
+      type: object
+      additionalProperties: false
+      required: [id, assetId, code, name, dataType, unitCode, status]
+      properties:
+        id:
+          type: string
+          format: uuid
+        assetId:
+          type: string
+          format: uuid
+        code:
+          type: string
+        name:
+          type: string
+        dataType:
+          type: string
+          enum: [BOOLEAN, INT64, FLOAT64, STRING]
+        unitCode:
+          type: string
+        status:
+          type: string
+          enum: [ACTIVE, INACTIVE]
+    TelemetryValue:
+      type: object
+      additionalProperties: false
+      required: [dataType, quality, qualityDetail, sourceTime, ingestedAt]
+      properties:
+        dataType:
+          type: string
+          enum: [BOOLEAN, INT64, FLOAT64, STRING]
+        value:
+          type: [boolean, integer, number, string, "null"]
+        unitCode:
+          type: [string, "null"]
+        quality:
+          type: string
+          enum: [GOOD, UNCERTAIN, BAD, NO_DATA]
+        qualityDetail:
+          type: string
+        sourceTime:
+          type: string
+          format: date-time
+        ingestedAt:
+          type: string
+          format: date-time
+    LatestValue:
+      allOf:
+        - $ref: "#/components/schemas/TelemetryValue"
+        - type: object
+          required: [tenantId, variableId, state]
+          properties:
+            tenantId:
+              type: string
+              format: uuid
+            variableId:
+              type: string
+              format: uuid
+            state:
+              type: string
+              enum: [ONLINE, STALE, OFFLINE, BAD_QUALITY, NO_DATA]
+    HistorySeries:
+      type: object
+      additionalProperties: false
+      required: [variableId, from, to, resolution, points, truncated]
+      properties:
+        variableId:
+          type: string
+          format: uuid
+        from:
+          type: string
+          format: date-time
+        to:
+          type: string
+          format: date-time
+        resolution:
+          type: string
+          enum: [raw, 1m, 1h]
+        points:
+          type: array
+          maxItems: 10000
+          items:
+            $ref: "#/components/schemas/TelemetryValue"
+        truncated:
+          type: boolean
+    RegisterGateway:
+      type: object
+      additionalProperties: false
+      required: [siteId, code, name]
+      properties:
+        siteId:
+          type: string
+          format: uuid
+        code:
+          type: string
+          minLength: 2
+          maxLength: 64
+        name:
+          type: string
+          minLength: 2
+          maxLength: 120
+    Gateway:
+      allOf:
+        - $ref: "#/components/schemas/RegisterGateway"
+        - type: object
+          required: [id, tenantId, lifecycleState, connectionState, version]
+          properties:
+            id:
+              type: string
+              format: uuid
+            tenantId:
+              type: string
+              format: uuid
+            lifecycleState:
+              type: string
+              enum: [REGISTERED, ACTIVE, SUSPENDED, REVOKED, RETIRED]
+            connectionState:
+              type: string
+              enum: [ONLINE, STALE, OFFLINE, UNKNOWN]
+            lastSeenAt:
+              type: [string, "null"]
+              format: date-time
+            version:
+              type: integer
+              minimum: 1
+    DesiredConfigRequest:
+      type: object
+      additionalProperties: false
+      required: [expectedActiveVersion, adapters, mappings]
+      properties:
+        expectedActiveVersion:
+          type: [integer, "null"]
+          minimum: 1
+        adapters:
+          type: array
+          minItems: 1
+          maxItems: 16
+          items:
+            type: object
+        mappings:
+          type: array
+          maxItems: 5000
+          items:
+            type: object
+    ConfigState:
+      type: object
+      additionalProperties: false
+      required: [gatewayId, desiredVersion, status]
+      properties:
+        gatewayId:
+          type: string
+          format: uuid
+        desiredVersion:
+          type: integer
+          minimum: 1
+        activeVersion:
+          type: [integer, "null"]
+          minimum: 1
+        status:
+          type: string
+          enum: [PENDING, APPLIED, REJECTED, ROLLED_BACK]
+        reportedAt:
+          type: [string, "null"]
+          format: date-time
+        reasonCode:
+          type: [string, "null"]
+    AlarmState:
+      type: string
+      enum: [ACTIVE, ACKNOWLEDGED, CLEARED, CLOSED]
+    AlarmSeverity:
+      type: string
+      enum: [INFO, LOW, MEDIUM, HIGH, CRITICAL]
+    Alarm:
+      type: object
+      additionalProperties: false
+      required:
+        [id, tenantId, siteId, assetId, ruleId, state, severity, openedAt, version]
+      properties:
+        id:
+          type: string
+          format: uuid
+        tenantId:
+          type: string
+          format: uuid
+        siteId:
+          type: string
+          format: uuid
+        assetId:
+          type: string
+          format: uuid
+        variableId:
+          type: [string, "null"]
+          format: uuid
+        ruleId:
+          type: string
+          format: uuid
+        state:
+          $ref: "#/components/schemas/AlarmState"
+        severity:
+          $ref: "#/components/schemas/AlarmSeverity"
+        message:
+          type: string
+        openedAt:
+          type: string
+          format: date-time
+        acknowledgedAt:
+          type: [string, "null"]
+          format: date-time
+        clearedAt:
+          type: [string, "null"]
+          format: date-time
+        closedAt:
+          type: [string, "null"]
+          format: date-time
+        version:
+          type: integer
+          minimum: 1
+        transitions:
+          type: array
+          items:
+            type: object
+            required: [from, to, occurredAt, actorType]
+            properties:
+              from:
+                type: [string, "null"]
+              to:
+                $ref: "#/components/schemas/AlarmState"
+              occurredAt:
+                type: string
+                format: date-time
+              actorType:
+                type: string
+                enum: [SYSTEM, USER]
+              actorId:
+                type: [string, "null"]
+              comment:
+                type: [string, "null"]
+    AuditEvent:
+      type: object
+      additionalProperties: false
+      required:
+        [id, tenantId, occurredAt, actorType, action, resourceType, result, correlationId]
+      properties:
+        id:
+          type: string
+          format: uuid
+        tenantId:
+          type: string
+          format: uuid
+        occurredAt:
+          type: string
+          format: date-time
+        actorType:
+          type: string
+          enum: [USER, SERVICE, GATEWAY, PLATFORM_ADMIN]
+        actorId:
+          type: string
+        action:
+          type: string
+        resourceType:
+          type: string
+        resourceId:
+          type: [string, "null"]
+        result:
+          type: string
+          enum: [SUCCESS, DENIED, FAILED]
+        correlationId:
+          type: string
+          format: uuid
+        reason:
+          type: [string, "null"]
+    Job:
+      type: object
+      additionalProperties: false
+      required: [id, tenantId, type, status, createdAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        tenantId:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum: [OPERATIONAL_REPORT, CSV_EXPORT]
+        status:
+          type: string
+          enum: [PENDING, RUNNING, SUCCEEDED, FAILED, EXPIRED]
+        createdAt:
+          type: string
+          format: date-time
+        expiresAt:
+          type: [string, "null"]
+          format: date-time

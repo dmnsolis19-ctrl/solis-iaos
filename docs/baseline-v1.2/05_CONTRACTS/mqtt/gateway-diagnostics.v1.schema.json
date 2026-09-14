@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.solis-iaos.example/mqtt/gateway-diagnostics.v1.schema.json",
+  "title": "SOLIS IAOS Gateway Diagnostics v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "messageId",
+    "gatewayId",
+    "occurredAt",
+    "buffer",
+    "clock",
+    "adapters"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "1.0" },
+    "messageId": { "type": "string", "format": "uuid" },
+    "gatewayId": { "type": "string", "format": "uuid" },
+    "occurredAt": { "type": "string", "format": "date-time" },
+    "uptimeSeconds": { "type": "integer", "minimum": 0 },
+    "cpuPercent": { "type": "number", "minimum": 0, "maximum": 100 },
+    "memoryPercent": { "type": "number", "minimum": 0, "maximum": 100 },
+    "diskFreeBytes": { "type": "integer", "minimum": 0 },
+    "buffer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pendingMessages", "oldestPendingAt", "usedBytes", "limitBytes"],
+      "properties": {
+        "pendingMessages": { "type": "integer", "minimum": 0 },
+        "oldestPendingAt": { "type": ["string", "null"], "format": "date-time" },
+        "usedBytes": { "type": "integer", "minimum": 0 },
+        "limitBytes": { "type": "integer", "minimum": 1 },
+        "droppedMessages": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "clock": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status"],
+      "properties": {
+        "status": { "type": "string", "enum": ["SYNCED", "UNSYNCED", "UNKNOWN"] },
+        "offsetMs": { "type": ["integer", "null"] },
+        "source": { "type": ["string", "null"], "maxLength": 64 }
+      }
+    },
+    "adapters": {
+      "type": "array",
+      "maxItems": 32,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["adapterId", "state"],
+        "properties": {
+          "adapterId": { "type": "string", "format": "uuid" },
+          "state": { "type": "string", "enum": ["RUNNING", "DEGRADED", "STOPPED"] },
+          "lastReadAt": { "type": ["string", "null"], "format": "date-time" },
+          "errorCode": { "type": ["string", "null"], "maxLength": 64 }
+        }
+      }
+    }
+  }
+}
+

@@ -1,0 +1,86 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: 24.18.0
+  PNPM_VERSION: 11.17.0
+
+jobs:
+  quality:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Activate pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@${PNPM_VERSION} --activate
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Quality and build
+        run: pnpm run ci
+
+  integration:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    needs: quality
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Activate pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@${PNPM_VERSION} --activate
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Sprint 0B local gate
+        run: pnpm sprint0b:local
+
+      - name: Diagnostics
+        if: failure()
+        continue-on-error: true
+        run: docker compose -f infra/local/compose.yaml --profile apps logs --no-color
+
+      - name: Upload Sprint 0B evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sprint-0b-local-${{ github.sha }}
+          path: artifacts/sprint-0b
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Stop dependencies
+        if: always()
+        run: docker compose -f infra/local/compose.yaml --profile apps down -v --remove-orphans

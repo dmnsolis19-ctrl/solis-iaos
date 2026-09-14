@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.solis-iaos.example/mqtt/config-reported.v1.schema.json",
+  "title": "SOLIS IAOS Reported Gateway Configuration v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "messageId",
+    "gatewayId",
+    "requestedVersion",
+    "activeVersion",
+    "status",
+    "reportedAt"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "1.0" },
+    "messageId": { "type": "string", "format": "uuid" },
+    "gatewayId": { "type": "string", "format": "uuid" },
+    "requestedVersion": { "type": "integer", "minimum": 1 },
+    "activeVersion": { "type": ["integer", "null"], "minimum": 1 },
+    "status": {
+      "type": "string",
+      "enum": ["APPLIED", "REJECTED", "ROLLED_BACK"]
+    },
+    "reportedAt": { "type": "string", "format": "date-time" },
+    "reasonCode": {
+      "type": ["string", "null"],
+      "enum": [
+        null,
+        "SCHEMA_INVALID",
+        "ADAPTER_UNSUPPORTED",
+        "MAPPING_INVALID",
+        "SECRET_UNAVAILABLE",
+        "CONNECTIVITY_TEST_FAILED",
+        "RESOURCE_LIMIT",
+        "APPLY_TIMEOUT",
+        "INTERNAL_ERROR"
+      ]
+    },
+    "safeDetail": { "type": ["string", "null"], "maxLength": 512 }
+  }
+}

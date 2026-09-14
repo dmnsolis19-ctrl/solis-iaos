@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "1.0",
+  "messageId": "7167ddcb-bcc1-4e96-b28d-84950d152d1d",
+  "gatewayId": "555db956-bf4e-4f86-9483-a16c247b6212",
+  "sessionId": "ee6aa92e-46f8-499f-874f-8fac6c15bb41",
+  "sequence": 43,
+  "sourceTime": "2026-07-26T16:00:01Z",
+  "clockStatus": "SYNCED",
+  "configVersion": 3,
+  "samples": [
+    {
+      "sampleIndex": 0,
+      "variableId": "d3cda2ec-dda5-405c-81a9-5312f18d86af",
+      "mappingId": "2b2c00b9-dbf8-478c-aae7-f0732dc0bb21",
+      "dataType": "FLOAT64",
+      "value": 0,
+      "unitCode": "bar",
+      "quality": "NO_DATA",
+      "qualityDetail": "NO_SAMPLE"
+    }
+  ]
+}

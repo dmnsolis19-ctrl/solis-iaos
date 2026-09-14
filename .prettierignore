@@ -1,0 +1,8 @@
+node_modules
+dist
+coverage
+artifacts
+pnpm-lock.yaml
+docs/baseline-v1.2
+packages/contracts/openapi
+packages/contracts/mqtt

@@ -1,0 +1,141 @@
+name: Deploy staging
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: solis-iaos-staging
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: sa-east-1
+  NODE_VERSION: 24.18.0
+  PNPM_VERSION: 11.17.0
+  TF_VERSION: 1.15.8
+  TF_DIR: infra/terraform/staging
+
+jobs:
+  deploy:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    environment: staging
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+          terraform_wrapper: false
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Activate pnpm and build web
+        run: |
+          corepack enable
+          corepack prepare pnpm@${PNPM_VERSION} --activate
+          pnpm install --frozen-lockfile
+          pnpm --filter @solis/web build
+
+      - name: Initialize Terraform
+        working-directory: ${{ env.TF_DIR }}
+        run: |
+          terraform init \
+            -backend-config="bucket=${{ vars.TF_STATE_BUCKET }}" \
+            -backend-config="key=solis-iaos/staging/terraform.tfstate" \
+            -backend-config="region=${AWS_REGION}" \
+            -backend-config="encrypt=true" \
+            -backend-config="use_lockfile=true"
+
+      - name: Bootstrap staging registries and platform
+        working-directory: ${{ env.TF_DIR }}
+        run: |
+          terraform apply -auto-approve \
+            -var="api_certificate_arn=${{ vars.API_CERTIFICATE_ARN }}" \
+            -var="api_hostname=${{ vars.API_HOSTNAME }}" \
+            -var="route53_zone_id=${{ vars.ROUTE53_ZONE_ID }}" \
+            -var="deploy_services=false"
+
+      - name: Resolve repositories
+        id: repositories
+        working-directory: ${{ env.TF_DIR }}
+        run: |
+          repositories="$(terraform output -json ecr_repositories)"
+          echo "api=$(jq -r '.api' <<<"${repositories}")" >>"${GITHUB_OUTPUT}"
+          echo "worker=$(jq -r '."telemetry-worker"' <<<"${repositories}")" >>"${GITHUB_OUTPUT}"
+          echo "simulator=$(jq -r '.simulator' <<<"${repositories}")" >>"${GITHUB_OUTPUT}"
+
+      - uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push candidates
+        run: |
+          docker build -f infra/images/Dockerfile.node-service --build-arg APP_NAME=@solis/api -t "${{ steps.repositories.outputs.api }}:${GITHUB_SHA}" .
+          docker build -f infra/images/Dockerfile.node-service --build-arg APP_NAME=@solis/telemetry-worker -t "${{ steps.repositories.outputs.worker }}:${GITHUB_SHA}" .
+          docker build -f infra/images/Dockerfile.node-service --build-arg APP_NAME=@solis/simulator -t "${{ steps.repositories.outputs.simulator }}:${GITHUB_SHA}" .
+          docker push "${{ steps.repositories.outputs.api }}:${GITHUB_SHA}"
+          docker push "${{ steps.repositories.outputs.worker }}:${GITHUB_SHA}"
+          docker push "${{ steps.repositories.outputs.simulator }}:${GITHUB_SHA}"
+
+      - name: Resolve immutable digests
+        id: images
+        run: |
+          api_repository="${{ steps.repositories.outputs.api }}"
+          worker_repository="${{ steps.repositories.outputs.worker }}"
+          simulator_repository="${{ steps.repositories.outputs.simulator }}"
+          api_name="${api_repository#*/}"
+          worker_name="${worker_repository#*/}"
+          simulator_name="${simulator_repository#*/}"
+          api_digest="$(aws ecr describe-images --repository-name "${api_name}" --image-ids imageTag="${GITHUB_SHA}" --query 'imageDetails[0].imageDigest' --output text)"
+          worker_digest="$(aws ecr describe-images --repository-name "${worker_name}" --image-ids imageTag="${GITHUB_SHA}" --query 'imageDetails[0].imageDigest' --output text)"
+          simulator_digest="$(aws ecr describe-images --repository-name "${simulator_name}" --image-ids imageTag="${GITHUB_SHA}" --query 'imageDetails[0].imageDigest' --output text)"
+          echo "api=${api_repository}@${api_digest}" >>"${GITHUB_OUTPUT}"
+          echo "worker=${worker_repository}@${worker_digest}" >>"${GITHUB_OUTPUT}"
+          echo "simulator=${simulator_repository}@${simulator_digest}" >>"${GITHUB_OUTPUT}"
+
+      - name: Plan digest-only deployment
+        working-directory: ${{ env.TF_DIR }}
+        run: |
+          terraform plan \
+            -var="api_certificate_arn=${{ vars.API_CERTIFICATE_ARN }}" \
+            -var="api_hostname=${{ vars.API_HOSTNAME }}" \
+            -var="route53_zone_id=${{ vars.ROUTE53_ZONE_ID }}" \
+            -var="deploy_services=true" \
+            -var="api_image=${{ steps.images.outputs.api }}" \
+            -var="worker_image=${{ steps.images.outputs.worker }}" \
+            -var="simulator_image=${{ steps.images.outputs.simulator }}" \
+            -out=staging.tfplan
+
+      - name: Apply reviewed artifact
+        working-directory: ${{ env.TF_DIR }}
+        run: terraform apply -auto-approve staging.tfplan
+
+      - name: Publish static web
+        working-directory: ${{ env.TF_DIR }}
+        run: |
+          web_bucket="$(terraform output -raw web_bucket)"
+          distribution_id="$(terraform output -raw cloudfront_distribution_id)"
+          aws s3 sync ../../../apps/web/dist "s3://${web_bucket}" --delete
+          aws cloudfront create-invalidation --distribution-id "${distribution_id}" --paths "/*"
+
+      - name: Wait for ECS
+        run: |
+          aws ecs wait services-stable \
+            --cluster solis-iaos-staging \
+            --services api telemetry-worker simulator
+
+      - name: Smoke staging
+        working-directory: ${{ env.TF_DIR }}
+        run: |
+          api_url="$(terraform output -raw api_url)"
+          curl --fail --silent --show-error "${api_url}/health/ready"

@@ -1,0 +1,173 @@
+name: solis-iaos-sprint-0b
+
+services:
+  postgres:
+    image: postgres:17.10-alpine3.23
+    environment:
+      POSTGRES_DB: solis_iaos
+      POSTGRES_USER: solis_owner
+      POSTGRES_PASSWORD: local-only-change-me
+      POSTGRES_INITDB_ARGS: --data-checksums
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U solis_owner -d solis_iaos"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+
+  mqtt:
+    image: eclipse-mosquitto:2.1.2
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+    healthcheck:
+      test:
+        ["CMD-SHELL", "mosquitto_sub -h 127.0.0.1 -t '$$SYS/broker/version' -C 1 -W 3 >/dev/null"]
+      interval: 5s
+      timeout: 4s
+      retries: 20
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+
+  queue:
+    image: localstack/localstack:4.14.0
+    environment:
+      SERVICES: sqs
+      AWS_DEFAULT_REGION: sa-east-1
+      DEBUG: "0"
+      PERSISTENCE: "0"
+    ports:
+      - "4566:4566"
+    volumes:
+      - ./localstack-init.sh:/etc/localstack/init/ready.d/10-create-queues.sh:ro
+    healthcheck:
+      test:
+        ["CMD-SHELL", "curl -fsS http://127.0.0.1:4566/_localstack/health | grep -q 'available'"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+
+  api:
+    profiles: ["apps"]
+    image: solis-iaos/api:0.2.0-local
+    build:
+      context: ../..
+      dockerfile: infra/images/Dockerfile.node-service
+      args:
+        APP_NAME: "@solis/api"
+    environment:
+      NODE_ENV: development
+      PORT: "3000"
+      LOG_LEVEL: info
+      OTEL_CONSOLE_EXPORTER: "true"
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000/health/ready >/dev/null"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+
+  telemetry-worker:
+    profiles: ["apps"]
+    image: solis-iaos/telemetry-worker:0.2.0-local
+    build:
+      context: ../..
+      dockerfile: infra/images/Dockerfile.node-service
+      args:
+        APP_NAME: "@solis/telemetry-worker"
+    environment:
+      NODE_ENV: development
+      PORT: "3001"
+      LOG_LEVEL: info
+      AWS_REGION: sa-east-1
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      SQS_ENDPOINT: http://queue:4566
+      SQS_QUEUE_URL: http://sqs.sa-east-1.localhost.localstack.cloud:4566/000000000000/solis-telemetry
+    ports:
+      - "3001:3001"
+    depends_on:
+      queue:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3001/health/ready >/dev/null"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+
+  simulator:
+    profiles: ["apps"]
+    image: solis-iaos/simulator:0.2.0-local
+    build:
+      context: ../..
+      dockerfile: infra/images/Dockerfile.node-service
+      args:
+        APP_NAME: "@solis/simulator"
+    environment:
+      NODE_ENV: development
+      PORT: "3002"
+      LOG_LEVEL: info
+    ports:
+      - "3002:3002"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3002/health/ready >/dev/null"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+
+  web:
+    profiles: ["apps"]
+    image: solis-iaos/web:0.2.0-local
+    build:
+      context: ../..
+      dockerfile: infra/images/Dockerfile.web
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8080/health >/dev/null"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /var/cache/nginx
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+
+volumes:
+  postgres-data:

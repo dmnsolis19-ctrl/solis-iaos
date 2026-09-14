@@ -1,0 +1,106 @@
+name: Security
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "17 7 * * 1"
+
+permissions:
+  contents: read
+  security-events: write
+
+env:
+  NODE_VERSION: 24.18.0
+  PNPM_VERSION: 11.17.0
+
+jobs:
+  supply-chain:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Activate pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@${PNPM_VERSION} --activate
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Secret scan
+        run: pnpm security:secrets
+
+      - name: Dependency audit
+        run: pnpm security:audit
+
+      - name: Generate application SBOM
+        run: pnpm run sbom
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sbom-${{ github.sha }}
+          path: artifacts/sbom.cdx.json
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Filesystem vulnerability and IaC scan
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          format: sarif
+          output: artifacts/trivy-fs.sarif
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: "1"
+
+      - name: Build immutable candidates
+        run: |
+          docker build -f infra/images/Dockerfile.node-service --build-arg APP_NAME=@solis/api -t solis-api:${GITHUB_SHA} .
+          docker build -f infra/images/Dockerfile.node-service --build-arg APP_NAME=@solis/telemetry-worker -t solis-worker:${GITHUB_SHA} .
+          docker build -f infra/images/Dockerfile.node-service --build-arg APP_NAME=@solis/simulator -t solis-simulator:${GITHUB_SHA} .
+          docker build -f infra/images/Dockerfile.web -t solis-web:${GITHUB_SHA} .
+
+      - name: Scan API image
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: solis-api:${{ github.sha }}
+          format: table
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: "1"
+
+      - name: Scan Worker image
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: solis-worker:${{ github.sha }}
+          format: table
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: "1"
+
+      - name: Scan Simulator image
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: solis-simulator:${{ github.sha }}
+          format: table
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: "1"
+
+      - name: Scan Web image
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: solis-web:${{ github.sha }}
+          format: table
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: "1"

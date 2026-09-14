@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "1.0",
+  "messageId": "69c3152d-410c-40da-88a0-35db80541c87",
+  "gatewayId": "555db956-bf4e-4f86-9483-a16c247b6212",
+  "sessionId": "ee6aa92e-46f8-499f-874f-8fac6c15bb41",
+  "sequence": 42,
+  "sourceTime": "2026-07-26T16:00:00Z",
+  "clockStatus": "SYNCED",
+  "configVersion": 3,
+  "samples": [
+    {
+      "sampleIndex": 0,
+      "variableId": "d3cda2ec-dda5-405c-81a9-5312f18d86af",
+      "mappingId": "2b2c00b9-dbf8-478c-aae7-f0732dc0bb21",
+      "dataType": "FLOAT64",
+      "value": 4.82,
+      "unitCode": "bar",
+      "quality": "GOOD",
+      "qualityDetail": "OK"
+    },
+    {
+      "sampleIndex": 1,
+      "variableId": "1137f0c7-2890-47e4-a482-d5d7f9a1e0a9",
+      "mappingId": "b17ebf3e-5fcc-4b75-a21a-6c0b3ba01ac3",
+      "dataType": "INT64",
+      "value": "9223372036854775807",
+      "unitCode": "1",
+      "quality": "GOOD",
+      "qualityDetail": "OK"
+    }
+  ]
+}

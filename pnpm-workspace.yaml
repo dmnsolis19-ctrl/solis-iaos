@@ -1,0 +1,15 @@
+packages:
+  - apps/*
+  - packages/*
+
+allowBuilds:
+  esbuild: true
+  protobufjs: true
+
+injectWorkspacePackages: true
+
+minimumReleaseAgeExclude:
+  - globals@17.8.0
+
+overrides:
+  "find-my-way@<=9.6.0": 9.7.0

@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "1.0",
+  "configId": "6230ce66-88ec-4dc9-a337-376e2b22f9f0",
+  "gatewayId": "555db956-bf4e-4f86-9483-a16c247b6212",
+  "configVersion": 3,
+  "issuedAt": "2026-07-26T15:55:00Z",
+  "notBefore": null,
+  "adapters": [
+    {
+      "adapterId": "d0cc8310-b821-40cc-a37b-b1c5838dcf78",
+      "protocol": "MODBUS_TCP",
+      "enabled": true,
+      "pollIntervalMs": 1000,
+      "parameters": {
+        "host": "192.0.2.10",
+        "port": 502,
+        "unitId": 1
+      },
+      "secretReference": null
+    }
+  ],
+  "mappings": [
+    {
+      "mappingId": "2b2c00b9-dbf8-478c-aae7-f0732dc0bb21",
+      "adapterId": "d0cc8310-b821-40cc-a37b-b1c5838dcf78",
+      "variableId": "d3cda2ec-dda5-405c-81a9-5312f18d86af",
+      "address": "holding:40001:uint16",
+      "dataType": "FLOAT64",
+      "unitCode": "bar",
+      "scale": 0.01,
+      "offset": 0,
+      "enabled": true
+    }
+  ]
+}

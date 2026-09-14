@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.solis-iaos.example/mqtt/gateway-status.v1.schema.json",
+  "title": "SOLIS IAOS Gateway Status v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "messageId", "gatewayId", "state", "occurredAt"],
+  "properties": {
+    "schemaVersion": { "const": "1.0" },
+    "messageId": { "type": "string", "format": "uuid" },
+    "gatewayId": { "type": "string", "format": "uuid" },
+    "state": { "type": "string", "enum": ["ONLINE", "OFFLINE", "DEGRADED"] },
+    "occurredAt": { "type": "string", "format": "date-time" },
+    "sessionId": { "type": "string", "format": "uuid" },
+    "activeConfigVersion": { "type": "integer", "minimum": 1 },
+    "agentVersion": { "type": "string", "maxLength": 64 },
+    "reasonCode": {
+      "type": "string",
+      "enum": [
+        "STARTED",
+        "GRACEFUL_STOP",
+        "CONNECTION_LOST",
+        "WATCHDOG_RESTART",
+        "RESOURCE_PRESSURE",
+        "UNKNOWN"
+      ]
+    }
+  }
+}
+

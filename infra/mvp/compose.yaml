@@ -29,7 +29,7 @@ services:
     restart: unless-stopped
 
   influxdb:
-    image: influxdb:2.9.0
+    image: influxdb:2.8.0
     environment:
       DOCKER_INFLUXDB_INIT_MODE: setup
       DOCKER_INFLUXDB_INIT_USERNAME: ${INFLUXDB_USERNAME:?INFLUXDB_USERNAME is required}
@@ -152,3 +152,4 @@ volumes:
   influxdb-data:
   influxdb-config:
   grafana-data:
+

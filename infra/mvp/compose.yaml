@@ -1,0 +1,154 @@
+name: solis-iaos-v030
+
+services:
+  mqtt:
+    build:
+      context: ./mosquitto
+    image: solis-iaos/mosquitto:0.3.0-local
+    environment:
+      MQTT_USERNAME: ${MQTT_USERNAME:?MQTT_USERNAME is required}
+      MQTT_PASSWORD: ${MQTT_PASSWORD:?MQTT_PASSWORD is required}
+      SOLIS_TENANT_ID: ${SOLIS_TENANT_ID:?SOLIS_TENANT_ID is required}
+      SOLIS_GATEWAY_ID: ${SOLIS_GATEWAY_ID:?SOLIS_GATEWAY_ID is required}
+    ports:
+      - "${MQTT_PORT:-1883}:1884"
+    volumes:
+      - mqtt-data:/mosquitto/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "mosquitto_sub -h 127.0.0.1 -p 1883 -t '$$SYS/broker/version' -C 1 -W 3 >/dev/null && mosquitto_sub -h 127.0.0.1 -p 1884 -u \"$$MQTT_USERNAME\" -P \"$$MQTT_PASSWORD\" -t '$$SYS/broker/version' -C 1 -W 3 >/dev/null",
+        ]
+      interval: 5s
+      timeout: 8s
+      retries: 20
+      start_period: 5s
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+
+  influxdb:
+    image: influxdb:2.9.0
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: ${INFLUXDB_USERNAME:?INFLUXDB_USERNAME is required}
+      DOCKER_INFLUXDB_INIT_PASSWORD: ${INFLUXDB_PASSWORD:?INFLUXDB_PASSWORD is required}
+      DOCKER_INFLUXDB_INIT_ORG: ${INFLUXDB_ORG:-solis}
+      DOCKER_INFLUXDB_INIT_BUCKET: ${INFLUXDB_BUCKET:-solis_telemetry}
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: ${INFLUXDB_ADMIN_TOKEN:?INFLUXDB_ADMIN_TOKEN is required}
+      DOCKER_INFLUXDB_INIT_RETENTION: 30d
+    ports:
+      - "127.0.0.1:${INFLUXDB_PORT:-8086}:8086"
+    volumes:
+      - influxdb-data:/var/lib/influxdb2
+      - influxdb-config:/etc/influxdb2
+    healthcheck:
+      test: ["CMD", "influx", "ping", "--host", "http://127.0.0.1:8086"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 10s
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+
+  node-red:
+    build:
+      context: ./node-red
+    image: solis-iaos/node-red:0.3.0-local
+    environment:
+      FLOWS: flows.json
+      NODE_RED_CREDENTIAL_SECRET: ${NODE_RED_CREDENTIAL_SECRET:?NODE_RED_CREDENTIAL_SECRET is required}
+      INFLUXDB_ORG: ${INFLUXDB_ORG:-solis}
+      INFLUXDB_BUCKET: ${INFLUXDB_BUCKET:-solis_telemetry}
+      INFLUXDB_ADMIN_TOKEN: ${INFLUXDB_ADMIN_TOKEN:?INFLUXDB_ADMIN_TOKEN is required}
+    ports:
+      - "127.0.0.1:${NODE_RED_PORT:-1880}:1880"
+    depends_on:
+      mqtt:
+        condition: service_healthy
+      influxdb:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:1880/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:12.1.1
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?GRAFANA_ADMIN_PASSWORD is required}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
+      INFLUXDB_ORG: ${INFLUXDB_ORG:-solis}
+      INFLUXDB_BUCKET: ${INFLUXDB_BUCKET:-solis_telemetry}
+      INFLUXDB_ADMIN_TOKEN: ${INFLUXDB_ADMIN_TOKEN:?INFLUXDB_ADMIN_TOKEN is required}
+    ports:
+      - "127.0.0.1:${GRAFANA_PORT:-3000}:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      influxdb:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget -q -O /dev/null http://127.0.0.1:3000/api/health || exit 1",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 15s
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+
+  simulator:
+    build:
+      context: ./gateway-simulator
+    image: solis-iaos/gateway-simulator:0.3.0-local
+    environment:
+      MQTT_HOST: mqtt
+      MQTT_PORT: "1883"
+      PUBLISH_INTERVAL_SECONDS: ${SIMULATOR_INTERVAL_SECONDS:-5}
+      SOLIS_TENANT_ID: ${SOLIS_TENANT_ID:-018f47d2-f8a1-7c42-8e02-e8f1a2f4bf76}
+      SOLIS_GATEWAY_ID: ${SOLIS_GATEWAY_ID:-555db956-bf4e-4f86-9483-a16c247b6212}
+    depends_on:
+      mqtt:
+        condition: service_healthy
+      node-red:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "test -f /tmp/solis-last-publish"]
+      interval: 10s
+      timeout: 3s
+      retries: 12
+      start_period: 10s
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+
+volumes:
+  mqtt-data:
+  influxdb-data:
+  influxdb-config:
+  grafana-data:

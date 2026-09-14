@@ -5,6 +5,7 @@ coverage/
 .env
 .env.*
 !.env.example
+!.env.mvp.example
 artifacts/*
 !artifacts/.gitkeep
 .terraform/
@@ -13,3 +14,4 @@ artifacts/*
 *.tfplan
 crash.log
 .DS_Store
+*.zip

@@ -1,8 +1,8 @@
 {
   "name": "solis-iaos",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
-  "description": "SOLIS IAOS Sprint 0B local-first validation monorepo",
+  "description": "SOLIS IAOS Foundation plus V0.3 local telemetry vertical slice",
   "license": "UNLICENSED",
   "packageManager": "pnpm@11.17.0",
   "engines": {
@@ -35,6 +35,12 @@
     "local:down": "docker compose -f infra/local/compose.yaml down",
     "local:reset": "docker compose -f infra/local/compose.yaml --profile apps down -v --remove-orphans",
     "local:smoke": "node tools/scripts/local-smoke.mjs",
+    "mvp:config": "docker compose --env-file .env.mvp -f infra/mvp/compose.yaml config --quiet",
+    "mvp:up": "docker compose --env-file .env.mvp -f infra/mvp/compose.yaml up -d --build --wait",
+    "mvp:ps": "docker compose --env-file .env.mvp -f infra/mvp/compose.yaml ps",
+    "mvp:logs": "docker compose --env-file .env.mvp -f infra/mvp/compose.yaml logs --no-color --tail=200",
+    "mvp:down": "docker compose --env-file .env.mvp -f infra/mvp/compose.yaml down",
+    "mvp:reset": "docker compose --env-file .env.mvp -f infra/mvp/compose.yaml down -v --remove-orphans",
     "sprint0b:preflight": "node tools/scripts/sprint-0b.mjs preflight",
     "sprint0b:static": "node tools/scripts/sprint-0b.mjs static",
     "sprint0b:local": "node tools/scripts/sprint-0b.mjs local",
@@ -45,7 +51,8 @@
     "security:audit": "pnpm audit --audit-level high",
     "sbom": "node tools/scripts/generate-sbom.mjs",
     "checksums": "node tools/scripts/generate-checksums.mjs",
-    "ci": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm boundaries && pnpm contracts:validate && pnpm contracts:compat && pnpm db:schema:sync && pnpm db:rls:static && pnpm test:unit && pnpm build"
+    "mvp:check": "node tools/scripts/check-mvp.mjs",
+    "ci": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm boundaries && pnpm contracts:validate && pnpm contracts:compat && pnpm db:schema:sync && pnpm db:rls:static && pnpm test:unit && pnpm mvp:check && pnpm build"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

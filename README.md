@@ -1,4 +1,42 @@
-# SOLIS IAOS — Sprint 0B Local Validation
+# SOLIS IAOS — V0.3 Telemetry Vertical Slice
+
+V0.3 agrega una ruta rápida y funcional de telemetría local sobre la Foundation
+V0.2.0. La arquitectura empresarial original permanece disponible y sin
+reemplazo.
+
+## Inicio rápido del MVP
+
+Con Docker Desktop iniciado, abra PowerShell en la raíz y ejecute:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\mvp-start.ps1
+```
+
+Después abra:
+
+- Grafana: `http://localhost:3000/d/solis-telemetry-v030`
+- Node-RED: `http://localhost:1880`
+- InfluxDB: `http://localhost:8086`
+
+Compruebe la ruta completa con:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\mvp-smoke.ps1
+```
+
+La guía completa está en `docs/vertical-slice-v0.3/LOCAL-RUNBOOK.md` y la
+decisión de alcance en `docs/vertical-slice-v0.3/ADR-042-LOCAL-TELEMETRY-VERTICAL-SLICE.md`.
+
+## Arquitectura V0.3
+
+`Gateway Simulator → Mosquitto → Node-RED → InfluxDB → Grafana`
+
+Esta ruta usa únicamente datos sintéticos. No autoriza PLC, OT, Internet,
+control remoto ni AWS.
+
+---
+
+## Baseline V0.2.0
 
 Incremento local-first/AWS-ready de la plataforma SOLIS IAOS, compatible con
 Foundation V0.1.0 y la Baseline arquitectónica V1.2.

@@ -1,6 +1,6 @@
-# SOLIS IAOS — Manifiesto de versiones Sprint 0B
+# SOLIS IAOS — Manifiesto de versiones V0.3
 
-**Fecha de verificación:** 2026-07-26
+**Fecha de verificación:** 2026-09-13
 
 | Componente   | Versión fijada | Uso                           |
 | ------------ | -------------: | ----------------------------- |
@@ -18,6 +18,13 @@
 | AWS Provider |         6.56.0 | Recursos AWS                  |
 | Trivy Action |         0.36.0 | Escaneo filesystem e imágenes |
 | Trivy CLI    |         0.69.3 | Validación local en Docker    |
+| Node-RED     |          5.0.7 | Flujo local de ingesta V0.3   |
+| InfluxDB OSS |          2.9.0 | Series temporales del prototipo |
+| Grafana      |         12.1.1 | Dashboard local provisionado  |
+
+Node-RED, InfluxDB y Grafana pertenecen exclusivamente al corte vertical local
+autorizado por ADR-042. No reemplazan las decisiones de staging o producto de
+la baseline V1.2.
 
 Las dependencias JavaScript exactas se resuelven en `pnpm-lock.yaml`; las
 imágenes se fijan por tag y las imágenes de aplicación se promueven a staging

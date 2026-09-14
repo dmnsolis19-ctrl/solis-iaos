@@ -13,9 +13,10 @@ Leer, en orden:
 
 ## Gate vigente
 
-Este repositorio implementa únicamente Sprint 0 Foundation y su validación
-local Sprint 0B. No contiene funcionalidades de negocio de Sprint 1+, conexión
-OT, datos reales, control remoto ni Pilot Production.
+La baseline Sprint 0 Foundation y su validación Sprint 0B permanecen intactas.
+ADR-042 autoriza además V0.3 como corte vertical local, sintético y aislado en
+`infra/mvp`. Este prototipo no autoriza conexión OT, datos reales, control
+remoto, staging ni Pilot Production.
 
 ## Reglas obligatorias
 
@@ -29,6 +30,8 @@ OT, datos reales, control remoto ni Pilot Production.
 - OpenAPI y JSON Schema son contratos canónicos.
 - Una historia no está terminada sin pruebas, observabilidad y documentación.
 - No declarar cerrado Sprint 0B sin un `pnpm sprint0b` completo en `PASS`.
+- Node-RED e InfluxDB solo pueden usarse en el prototipo `infra/mvp`; no
+  reemplazan la arquitectura de producto sin un nuevo ADR.
 
 ## Stop conditions
 

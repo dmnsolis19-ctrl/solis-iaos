@@ -84,12 +84,7 @@ const validPayload = JSON.parse(
 const topic =
   `solis/v1/tenants/018f47d2-f8a1-7c42-8e02-e8f1a2f4bf76/gateways/` +
   `${validPayload.gatewayId}/telemetry`;
-const validResult = executeTransform(
-  { topic, payload: validPayload },
-  environment,
-  node,
-  Buffer,
-);
+const validResult = executeTransform({ topic, payload: validPayload }, environment, node, Buffer);
 if (validResult[0]?.payload?.includes("telemetry,tenant_id=") !== true || validResult[1] !== null) {
   throw new Error("A valid contract payload was not routed to telemetry.");
 }
@@ -130,17 +125,34 @@ if (validStatus?.payload?.includes("gateway_status,tenant_id=") !== true) {
 const profiles = JSON.parse(
   await readFile(resolve(root, "docs/vertical-slice-v0.4/profiles/gateway-profiles.json"), "utf8"),
 );
-const requiredProfiles = ["wecon-h-ag", "siemens-s7", "mitsubishi-fx5u", "schneider-modicon", "allen-bradley", "generic-mqtt"];
+const requiredProfiles = [
+  "wecon-h-ag",
+  "siemens-s7",
+  "mitsubishi-fx5u",
+  "schneider-modicon",
+  "allen-bradley",
+  "generic-mqtt",
+];
 for (const profileId of requiredProfiles) {
-  if (!profiles.profiles?.some((profile) => profile.id === profileId && profile.certificationStatus === "UNVERIFIED")) {
+  if (
+    !profiles.profiles?.some(
+      (profile) => profile.id === profileId && profile.certificationStatus === "UNVERIFIED",
+    )
+  ) {
     throw new Error(`Missing unverified gateway profile: ${profileId}`);
   }
 }
 
 const signalProfile = JSON.parse(
-  await readFile(resolve(root, "docs/vertical-slice-v0.4/profiles/water-process-signals.json"), "utf8"),
+  await readFile(
+    resolve(root, "docs/vertical-slice-v0.4/profiles/water-process-signals.json"),
+    "utf8",
+  ),
 );
-if (signalProfile.signals?.length !== 10 || new Set(signalProfile.signals.map((signal) => signal.variableId)).size !== 10) {
+if (
+  signalProfile.signals?.length !== 10 ||
+  new Set(signalProfile.signals.map((signal) => signal.variableId)).size !== 10
+) {
   throw new Error("Water process profile must contain ten unique signals.");
 }
 

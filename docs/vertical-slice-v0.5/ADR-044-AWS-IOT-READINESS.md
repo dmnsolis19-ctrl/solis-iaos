@@ -1,11 +1,11 @@
 # ADR-044 — Preparación estática para AWS IoT
 
-| Campo | Valor |
-|---|---|
-| Estado | Aceptado para V0.5 sin despliegue |
-| Fecha | 14-09-2026 |
-| Extiende | ADR-043 |
-| Detalla | ADR-029, ADR-035, ADR-036 y ADR-038 |
+| Campo    | Valor                               |
+| -------- | ----------------------------------- |
+| Estado   | Aceptado para V0.5 sin despliegue   |
+| Fecha    | 14-09-2026                          |
+| Extiende | ADR-043                             |
+| Detalla  | ADR-029, ADR-035, ADR-036 y ADR-038 |
 
 ## Contexto
 

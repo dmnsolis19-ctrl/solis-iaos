@@ -23,12 +23,12 @@ Antes de usar otro equipo en la red, edite ese archivo y cambie las contraseñas
 
 ## Accesos
 
-| Servicio | Dirección |
-|---|---|
-| Grafana | `http://localhost:3000/d/solis-telemetry-v030` |
-| Node-RED | `http://localhost:1880` |
-| InfluxDB | `http://localhost:8086` |
-| MQTT para gateway LAN | `<IP-del-PC>:1883` |
+| Servicio              | Dirección                                      |
+| --------------------- | ---------------------------------------------- |
+| Grafana               | `http://localhost:3000/d/solis-telemetry-v030` |
+| Node-RED              | `http://localhost:1880`                        |
+| InfluxDB              | `http://localhost:8086`                        |
+| MQTT para gateway LAN | `<IP-del-PC>:1883`                             |
 
 Las credenciales se encuentran en `.env.mvp`. Este archivo está excluido de
 Git.

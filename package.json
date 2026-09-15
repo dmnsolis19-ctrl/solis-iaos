@@ -19,7 +19,7 @@
     "test": "pnpm test:unit && pnpm test:integration",
     "test:unit": "turbo run test:unit",
     "test:integration": "turbo run test:integration",
-    "boundaries": "depcruise --config dependency-cruiser.cjs --exclude '(^|/)dist/' apps packages",
+    "boundaries": "depcruise --config dependency-cruiser.cjs --exclude \"(^|/)dist/\" apps packages",
     "contracts:validate": "pnpm --filter @solis/contracts validate",
     "contracts:compat": "node tools/scripts/check-contract-sync.mjs",
     "db:schema:sync": "node tools/scripts/check-schema-sync.mjs",

@@ -1,5 +1,7 @@
 # Runbook local — Gateway Lab V0.4
+
 protocolo, direccionamiento, responsable OT y plan FAT de solo lectura.
+
 ## Propósito
 
 Validar telemetría multimagnitud, calidad y heartbeat con datos sintéticos.

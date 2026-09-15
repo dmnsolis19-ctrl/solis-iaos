@@ -2,25 +2,25 @@
 
 **Fecha de verificación:** 2026-09-13
 
-| Componente   | Versión fijada | Uso                           |
-| ------------ | -------------: | ----------------------------- |
-| Node.js      |    24.18.0 LTS | Runtime y build               |
-| pnpm         |        11.17.0 | Workspace, lockfile y SBOM    |
-| TypeScript   |          5.9.3 | Compilación estricta          |
-| NestJS       |        11.1.28 | API modular                   |
-| Fastify      |         5.10.0 | Adaptador HTTP                |
-| React        |         19.2.8 | Shell web                     |
-| Vite         |          8.1.5 | Build web                     |
-| PostgreSQL   |          17.10 | Local y RDS                   |
-| Mosquitto    |          2.1.2-alpine | Broker MQTT local             |
-| LocalStack   |         4.14.0 | SQS local                     |
+| Componente   | Versión fijada | Uso                                         |
+| ------------ | -------------: | ------------------------------------------- |
+| Node.js      |    24.18.0 LTS | Runtime y build                             |
+| pnpm         |        11.17.0 | Workspace, lockfile y SBOM                  |
+| TypeScript   |          5.9.3 | Compilación estricta                        |
+| NestJS       |        11.1.28 | API modular                                 |
+| Fastify      |         5.10.0 | Adaptador HTTP                              |
+| React        |         19.2.8 | Shell web                                   |
+| Vite         |          8.1.5 | Build web                                   |
+| PostgreSQL   |          17.10 | Local y RDS                                 |
+| Mosquitto    |   2.1.2-alpine | Broker MQTT local                           |
+| LocalStack   |         4.14.0 | SQS local                                   |
 | Terraform    | >=1.15.8, <2.0 | AWS IoT readiness (host verificado: 1.16.2) |
-| AWS Provider |         6.56.0 | Recursos AWS                  |
-| Trivy Action |         0.36.0 | Escaneo filesystem e imágenes |
-| Trivy CLI    |         0.69.3 | Validación local en Docker    |
-| Node-RED     |          5.0.7 | Ingesta y heartbeat local V0.4 |
-| InfluxDB OSS |          2.8.0 | Series temporales del prototipo |
-| Grafana      |         12.1.1 | Dashboard local provisionado  |
+| AWS Provider |         6.56.0 | Recursos AWS                                |
+| Trivy Action |         0.36.0 | Escaneo filesystem e imágenes               |
+| Trivy CLI    |         0.69.3 | Validación local en Docker                  |
+| Node-RED     |          5.0.7 | Ingesta y heartbeat local V0.4              |
+| InfluxDB OSS |          2.8.0 | Series temporales del prototipo             |
+| Grafana      |         12.1.1 | Dashboard local provisionado                |
 
 Node-RED, InfluxDB y Grafana pertenecen exclusivamente al corte vertical local
 autorizado por ADR-042. No reemplazan las decisiones de staging o producto de

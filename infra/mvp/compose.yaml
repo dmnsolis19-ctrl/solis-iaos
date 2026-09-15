@@ -18,7 +18,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          "mosquitto_sub -h 127.0.0.1 -p 1883 -t '$$SYS/broker/version' -C 1 -W 3 >/dev/null && mosquitto_sub -h 127.0.0.1 -p 1884 -u \"$$MQTT_USERNAME\" -P \"$$MQTT_PASSWORD\" -t '$$SYS/broker/version' -C 1 -W 3 >/dev/null",
+          'mosquitto_sub -h 127.0.0.1 -p 1883 -t ''$$SYS/broker/version'' -C 1 -W 3 >/dev/null && mosquitto_sub -h 127.0.0.1 -p 1884 -u "$$MQTT_USERNAME" -P "$$MQTT_PASSWORD" -t ''$$SYS/broker/version'' -C 1 -W 3 >/dev/null',
         ]
       interval: 5s
       timeout: 8s
@@ -106,11 +106,7 @@ services:
       influxdb:
         condition: service_healthy
     healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "wget -q -O /dev/null http://127.0.0.1:3000/api/health || exit 1",
-        ]
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:3000/api/health || exit 1"]
       interval: 5s
       timeout: 5s
       retries: 30
@@ -153,4 +149,3 @@ volumes:
   influxdb-data:
   influxdb-config:
   grafana-data:
-

@@ -1,0 +1,6 @@
+aws_region       = "sa-east-1"
+environment      = "readiness"
+project_name     = "solis-iaos"
+tenant_id        = "018f47d2-f8a1-7c42-8e02-e8f1a2f4bf76"
+gateway_id       = "solis-gw-lab-001"
+enable_ingestion = false

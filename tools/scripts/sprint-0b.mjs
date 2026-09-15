@@ -345,7 +345,7 @@ async function assertApplicationHealth() {
 async function collectComposeDiagnostics() {
   try {
     await recordStep("Docker Compose diagnostics", () =>
-      run("docker", composeArgs("--profile", "apps", "logs", "--no-color")),
+      run("docker", composeArgs("--profile", "apps", "logs", "--no-color", "--tail", "500")),
     );
   } catch {
     // The original failure remains authoritative.
@@ -463,6 +463,8 @@ async function runTrivyValidation() {
       "--ignore-unfixed",
       "--exit-code",
       "1",
+      "--timeout",
+      "15m",
       "--format",
       "json",
       "--output",

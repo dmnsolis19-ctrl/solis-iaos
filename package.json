@@ -1,8 +1,8 @@
 {
   "name": "solis-iaos",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "private": true,
-  "description": "SOLIS IAOS Foundation plus V0.4 vendor-neutral gateway laboratory",
+  "description": "SOLIS IAOS Foundation plus V0.5 AWS IoT readiness",
   "license": "UNLICENSED",
   "packageManager": "pnpm@11.17.0",
   "engines": {
@@ -19,7 +19,7 @@
     "test": "pnpm test:unit && pnpm test:integration",
     "test:unit": "turbo run test:unit",
     "test:integration": "turbo run test:integration",
-    "boundaries": "depcruise --config dependency-cruiser.cjs --exclude '(^|/)dist/' apps packages",
+    "boundaries": "depcruise --config dependency-cruiser.cjs --exclude \"(^|/)dist/\" apps packages",
     "contracts:validate": "pnpm --filter @solis/contracts validate",
     "contracts:compat": "node tools/scripts/check-contract-sync.mjs",
     "db:schema:sync": "node tools/scripts/check-schema-sync.mjs",
@@ -52,7 +52,8 @@
     "sbom": "node tools/scripts/generate-sbom.mjs",
     "checksums": "node tools/scripts/generate-checksums.mjs",
     "mvp:check": "node tools/scripts/check-mvp.mjs",
-    "ci": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm boundaries && pnpm contracts:validate && pnpm contracts:compat && pnpm db:schema:sync && pnpm db:rls:static && pnpm test:unit && pnpm mvp:check && pnpm build"
+    "aws:iot:check": "node tools/scripts/check-aws-iot-readiness.mjs",
+    "ci": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm boundaries && pnpm contracts:validate && pnpm contracts:compat && pnpm db:schema:sync && pnpm db:rls:static && pnpm test:unit && pnpm mvp:check && pnpm aws:iot:check && pnpm build"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

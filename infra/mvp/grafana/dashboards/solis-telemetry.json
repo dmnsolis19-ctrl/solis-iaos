@@ -12,7 +12,15 @@
       "fieldConfig": { "defaults": { "unit": "pressurebar" }, "overrides": [] },
       "gridPos": { "h": 8, "w": 8, "x": 0, "y": 0 },
       "id": 1,
-      "options": { "colorMode": "value", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto", "wideLayout": true },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto",
+        "wideLayout": true
+      },
       "targets": [
         {
           "datasource": { "type": "influxdb", "uid": "influxdb-solis" },
@@ -28,7 +36,15 @@
       "fieldConfig": { "defaults": { "unit": "m3h" }, "overrides": [] },
       "gridPos": { "h": 8, "w": 8, "x": 8, "y": 0 },
       "id": 2,
-      "options": { "colorMode": "value", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto", "wideLayout": true },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto",
+        "wideLayout": true
+      },
       "targets": [
         {
           "datasource": { "type": "influxdb", "uid": "influxdb-solis" },
@@ -44,7 +60,15 @@
       "fieldConfig": { "defaults": { "max": 100, "min": 0, "unit": "percent" }, "overrides": [] },
       "gridPos": { "h": 8, "w": 8, "x": 16, "y": 0 },
       "id": 3,
-      "options": { "colorMode": "value", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto", "wideLayout": true },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto",
+        "wideLayout": true
+      },
       "targets": [
         {
           "datasource": { "type": "influxdb", "uid": "influxdb-solis" },
@@ -60,7 +84,15 @@
       "fieldConfig": { "defaults": {}, "overrides": [] },
       "gridPos": { "h": 11, "w": 18, "x": 0, "y": 16 },
       "id": 4,
-      "options": { "legend": { "calcs": ["lastNotNull"], "displayMode": "table", "placement": "bottom", "showLegend": true }, "tooltip": { "mode": "multi", "sort": "none" } },
+      "options": {
+        "legend": {
+          "calcs": ["lastNotNull"],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": { "mode": "multi", "sort": "none" }
+      },
       "targets": [
         {
           "datasource": { "type": "influxdb", "uid": "influxdb-solis" },
@@ -73,10 +105,30 @@
     },
     {
       "datasource": { "type": "influxdb", "uid": "influxdb-solis" },
-      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 1 }] } }, "overrides": [] },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 1 }
+            ]
+          }
+        },
+        "overrides": []
+      },
       "gridPos": { "h": 11, "w": 6, "x": 18, "y": 16 },
       "id": 5,
-      "options": { "colorMode": "value", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto", "wideLayout": true },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto",
+        "wideLayout": true
+      },
       "targets": [
         {
           "datasource": { "type": "influxdb", "uid": "influxdb-solis" },
@@ -89,11 +141,38 @@
     },
     {
       "datasource": { "type": "influxdb", "uid": "influxdb-solis" },
-      "fieldConfig": { "defaults": { "mappings": [{ "options": { "0": { "color": "red", "text": "OFFLINE" }, "1": { "color": "green", "text": "ONLINE" } }, "type": "value" }] }, "overrides": [] },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "options": {
+                "0": { "color": "red", "text": "OFFLINE" },
+                "1": { "color": "green", "text": "ONLINE" }
+              },
+              "type": "value"
+            }
+          ]
+        },
+        "overrides": []
+      },
       "gridPos": { "h": 8, "w": 6, "x": 0, "y": 8 },
       "id": 6,
-      "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto", "wideLayout": true },
-      "targets": [{ "datasource": { "type": "influxdb", "uid": "influxdb-solis" }, "query": "from(bucket: \"solis_telemetry\") |> range(start: -5m) |> filter(fn: (r) => r._measurement == \"gateway_status\" and r._field == \"state_code\") |> group(columns: [\"gateway_id\"]) |> last()", "refId": "A" }],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "datasource": { "type": "influxdb", "uid": "influxdb-solis" },
+          "query": "from(bucket: \"solis_telemetry\") |> range(start: -5m) |> filter(fn: (r) => r._measurement == \"gateway_status\" and r._field == \"state_code\") |> group(columns: [\"gateway_id\"]) |> last()",
+          "refId": "A"
+        }
+      ],
       "title": "Gateway",
       "type": "stat"
     },
@@ -102,8 +181,22 @@
       "fieldConfig": { "defaults": { "unit": "celsius" }, "overrides": [] },
       "gridPos": { "h": 8, "w": 6, "x": 6, "y": 8 },
       "id": 7,
-      "options": { "colorMode": "value", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto", "wideLayout": true },
-      "targets": [{ "datasource": { "type": "influxdb", "uid": "influxdb-solis" }, "query": "from(bucket: \"solis_telemetry\") |> range(start: -5m) |> filter(fn: (r) => r._measurement == \"telemetry\" and r._field == \"value_float64\" and r.variable_id == \"82c76d55-834d-4d8b-ae7c-e7cb28dcedbc\") |> last()", "refId": "A" }],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "datasource": { "type": "influxdb", "uid": "influxdb-solis" },
+          "query": "from(bucket: \"solis_telemetry\") |> range(start: -5m) |> filter(fn: (r) => r._measurement == \"telemetry\" and r._field == \"value_float64\" and r.variable_id == \"82c76d55-834d-4d8b-ae7c-e7cb28dcedbc\") |> last()",
+          "refId": "A"
+        }
+      ],
       "title": "Temperatura",
       "type": "stat"
     },
@@ -112,8 +205,22 @@
       "fieldConfig": { "defaults": { "decimals": 2, "unit": "none" }, "overrides": [] },
       "gridPos": { "h": 8, "w": 6, "x": 12, "y": 8 },
       "id": 8,
-      "options": { "colorMode": "value", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto", "wideLayout": true },
-      "targets": [{ "datasource": { "type": "influxdb", "uid": "influxdb-solis" }, "query": "from(bucket: \"solis_telemetry\") |> range(start: -5m) |> filter(fn: (r) => r._measurement == \"telemetry\" and r._field == \"value_float64\" and r.variable_id == \"5df7dd7c-71f1-44a5-a2d5-497f0981acb9\") |> last()", "refId": "A" }],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "datasource": { "type": "influxdb", "uid": "influxdb-solis" },
+          "query": "from(bucket: \"solis_telemetry\") |> range(start: -5m) |> filter(fn: (r) => r._measurement == \"telemetry\" and r._field == \"value_float64\" and r.variable_id == \"5df7dd7c-71f1-44a5-a2d5-497f0981acb9\") |> last()",
+          "refId": "A"
+        }
+      ],
       "title": "pH",
       "type": "stat"
     },
@@ -122,8 +229,22 @@
       "fieldConfig": { "defaults": { "decimals": 2, "unit": "none" }, "overrides": [] },
       "gridPos": { "h": 8, "w": 6, "x": 18, "y": 8 },
       "id": 9,
-      "options": { "colorMode": "value", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto", "wideLayout": true },
-      "targets": [{ "datasource": { "type": "influxdb", "uid": "influxdb-solis" }, "query": "from(bucket: \"solis_telemetry\") |> range(start: -5m) |> filter(fn: (r) => r._measurement == \"telemetry\" and r._field == \"value_float64\" and r.variable_id == \"77717868-ada6-47df-bb9d-4162ab4fc396\") |> group(columns: [\"variable_id\"]) |> last()", "refId": "A" }],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "datasource": { "type": "influxdb", "uid": "influxdb-solis" },
+          "query": "from(bucket: \"solis_telemetry\") |> range(start: -5m) |> filter(fn: (r) => r._measurement == \"telemetry\" and r._field == \"value_float64\" and r.variable_id == \"77717868-ada6-47df-bb9d-4162ab4fc396\") |> group(columns: [\"variable_id\"]) |> last()",
+          "refId": "A"
+        }
+      ],
       "title": "Turbidez (NTU)",
       "type": "stat"
     }

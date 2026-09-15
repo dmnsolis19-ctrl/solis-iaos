@@ -1,11 +1,11 @@
 # ADR-043 — Laboratorio local de gateways independiente del fabricante
 
-| Campo | Valor |
-|---|---|
-| Estado | Aceptado para V0.4 local |
-| Fecha | 14-09-2026 |
+| Campo     | Valor                                                                    |
+| --------- | ------------------------------------------------------------------------ |
+| Estado    | Aceptado para V0.4 local                                                 |
+| Fecha     | 14-09-2026                                                               |
 | Autoridad | Solicitud explícita del propietario para soportar WECON y otros gateways |
-| Extiende | ADR-042 |
+| Extiende  | ADR-042                                                                  |
 
 ## Contexto
 

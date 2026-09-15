@@ -26,7 +26,6 @@ topic read solis/v1/tenants/${SOLIS_TENANT_ID}/gateways/${SOLIS_GATEWAY_ID}/conf
 topic read \$SYS/broker/version
 EOF
 
-chown -R mosquitto:mosquitto /mosquitto/data
 chmod 0600 "$password_file" "$acl_file"
 
 exec mosquitto -c /mosquitto/config/mosquitto.conf

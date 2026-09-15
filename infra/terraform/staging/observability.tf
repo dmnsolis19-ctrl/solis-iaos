@@ -1,3 +1,6 @@
+# AWS-managed encryption is proportionate for synthetic-only staging data.
+# A customer-managed key is required before Pilot Production activation.
+#trivy:ignore:AWS-0136
 resource "aws_sns_topic" "operations" {
   name              = "${local.name}-operations"
   kms_master_key_id = "alias/aws/sns"

@@ -1,11 +1,11 @@
 # ADR-042 — Corte vertical local de telemetría
 
-| Campo | Valor |
-|---|---|
-| Estado | Aceptado para V0.3 local |
-| Fecha | 13-09-2026 |
-| Autoridad | Aprobación explícita del propietario del proyecto |
-| Acota | ADR-031, ADR-038 y ADR-039 únicamente durante el prototipo |
+| Campo     | Valor                                                      |
+| --------- | ---------------------------------------------------------- |
+| Estado    | Aceptado para V0.3 local                                   |
+| Fecha     | 13-09-2026                                                 |
+| Autoridad | Aprobación explícita del propietario del proyecto          |
+| Acota     | ADR-031, ADR-038 y ADR-039 únicamente durante el prototipo |
 
 ## Contexto
 

@@ -5,5 +5,6 @@ COPY entrypoint.sh /usr/local/bin/solis-mosquitto-entrypoint
 
 RUN chmod 0755 /usr/local/bin/solis-mosquitto-entrypoint
 
-ENTRYPOINT ["/usr/local/bin/solis-mosquitto-entrypoint"]
+USER mosquitto
 
+ENTRYPOINT ["/usr/local/bin/solis-mosquitto-entrypoint"]

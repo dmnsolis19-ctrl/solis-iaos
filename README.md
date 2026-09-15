@@ -1,4 +1,21 @@
-# SOLIS IAOS — V0.4 Vendor-Neutral Gateway Lab
+# SOLIS IAOS — V0.5 AWS IoT Readiness
+
+V0.5 prepara de forma estática una ruta AWS IoT Core → SQS/DLQ con identidad
+por gateway y mínimo privilegio. No usa credenciales, no crea certificados y no
+ejecuta `plan` o `apply`. La pila aislada está en
+`infra/terraform/iot-readiness` y su decisión en `docs/vertical-slice-v0.5/`.
+
+Validación local de readiness:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\aws-iot-readiness.ps1
+```
+
+El laboratorio Docker V0.4 continúa siendo la prueba funcional local.
+
+---
+
+## V0.4 Vendor-Neutral Gateway Lab
 
 V0.4 amplía la ruta funcional local con diez señales de proceso, calidad y
 heartbeat del gateway. Mantiene el contrato MQTT v1 y prepara perfiles de

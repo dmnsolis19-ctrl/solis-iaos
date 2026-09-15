@@ -111,6 +111,9 @@ resource "aws_iam_role_policy" "worker_queue" {
   policy = data.aws_iam_policy_document.worker_queue.json
 }
 
+# Public HTTPS is intentional for browser and Edge clients in synthetic staging.
+# Tasks remain private, accept traffic only from this ALB, and expose no public IP.
+#trivy:ignore:AWS-0053
 resource "aws_lb" "api" {
   name               = substr(replace("${local.name}-api", "_", "-"), 0, 32)
   internal           = false
@@ -188,7 +191,7 @@ resource "aws_ecs_task_definition" "api" {
           protocol      = "tcp"
         }
       ]
-      environment = concat(local.container_environment, [{ name = "PORT", value = "3000" }])
+      environment            = concat(local.container_environment, [{ name = "PORT", value = "3000" }])
       readonlyRootFilesystem = true
       user                   = "node"
       linuxParameters = {
@@ -311,7 +314,7 @@ resource "aws_ecs_service" "api" {
 
   deployment_minimum_healthy_percent = 100
   deployment_maximum_percent         = 200
-  enable_execute_command              = false
+  enable_execute_command             = false
 
   network_configuration {
     subnets          = aws_subnet.application[*].id

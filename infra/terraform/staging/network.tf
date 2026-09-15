@@ -171,6 +171,9 @@ resource "aws_security_group" "application" {
     security_groups = [aws_security_group.alb.id]
   }
 
+  # HTTPS egress through NAT is required for managed AWS APIs used by staging.
+  # Tasks have no public IP; protocol and port remain restricted to TCP/443.
+  #trivy:ignore:AWS-0104
   egress {
     description = "Managed AWS services and package endpoints"
     from_port   = 443

@@ -16,7 +16,11 @@ dlq_arn="$(awslocal sqs get-queue-attributes \
   --query Attributes.QueueArn \
   --output text)"
 
+attributes_json="$(printf \
+  '{"VisibilityTimeout":"60","MessageRetentionPeriod":"345600","RedrivePolicy":"{\"deadLetterTargetArn\":\"%s\",\"maxReceiveCount\":\"5\"}"}' \
+  "$dlq_arn")"
+
 awslocal sqs create-queue \
   --queue-name solis-telemetry \
-  --attributes "VisibilityTimeout=60,MessageRetentionPeriod=345600,RedrivePolicy={\"deadLetterTargetArn\":\"$dlq_arn\",\"maxReceiveCount\":\"5\"}" \
+  --attributes "$attributes_json" \
   >/dev/null

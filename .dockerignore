@@ -22,3 +22,4 @@ work
 *.tfstate
 *.tfstate.*
 CHECKSUMS.sha256
+**/*.tsbuildinfo

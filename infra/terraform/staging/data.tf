@@ -39,9 +39,9 @@ resource "aws_db_instance" "main" {
   publicly_accessible    = false
   multi_az               = false
 
-  backup_retention_period = 7
-  backup_window           = "03:00-04:00"
-  maintenance_window      = "sun:04:30-sun:05:30"
+  backup_retention_period    = 7
+  backup_window              = "03:00-04:00"
+  maintenance_window         = "sun:04:30-sun:05:30"
   auto_minor_version_upgrade = false
 
   deletion_protection       = true

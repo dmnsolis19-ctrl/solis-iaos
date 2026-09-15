@@ -188,7 +188,7 @@ resource "aws_ecs_task_definition" "api" {
           protocol      = "tcp"
         }
       ]
-      environment = concat(local.container_environment, [{ name = "PORT", value = "3000" }])
+      environment            = concat(local.container_environment, [{ name = "PORT", value = "3000" }])
       readonlyRootFilesystem = true
       user                   = "node"
       linuxParameters = {
@@ -311,7 +311,7 @@ resource "aws_ecs_service" "api" {
 
   deployment_minimum_healthy_percent = 100
   deployment_maximum_percent         = 200
-  enable_execute_command              = false
+  enable_execute_command             = false
 
   network_configuration {
     subnets          = aws_subnet.application[*].id

@@ -1,4 +1,4 @@
-# SOLIS IAOS — Manifiesto de versiones V0.4
+# SOLIS IAOS — Manifiesto de versiones V0.5
 
 **Fecha de verificación:** 2026-09-13
 
@@ -14,7 +14,7 @@
 | PostgreSQL   |          17.10 | Local y RDS                   |
 | Mosquitto    |          2.1.2-alpine | Broker MQTT local             |
 | LocalStack   |         4.14.0 | SQS local                     |
-| Terraform    |         1.15.8 | Landing zone                  |
+| Terraform    | >=1.15.8, <2.0 | AWS IoT readiness (host verificado: 1.16.2) |
 | AWS Provider |         6.56.0 | Recursos AWS                  |
 | Trivy Action |         0.36.0 | Escaneo filesystem e imágenes |
 | Trivy CLI    |         0.69.3 | Validación local en Docker    |

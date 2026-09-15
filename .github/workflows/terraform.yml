@@ -20,7 +20,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: infra/terraform/staging
+        working-directory: infra/terraform
 
     steps:
       - uses: actions/checkout@v5
@@ -33,8 +33,14 @@ jobs:
       - name: Format
         run: terraform fmt -check -recursive
 
-      - name: Initialize without remote state
-        run: terraform init -backend=false
+      - name: Initialize staging without remote state
+        run: terraform -chdir=staging init -backend=false
 
-      - name: Validate
-        run: terraform validate
+      - name: Validate staging
+        run: terraform -chdir=staging validate
+
+      - name: Initialize AWS IoT readiness without remote state
+        run: terraform -chdir=iot-readiness init -backend=false
+
+      - name: Validate AWS IoT readiness
+        run: terraform -chdir=iot-readiness validate

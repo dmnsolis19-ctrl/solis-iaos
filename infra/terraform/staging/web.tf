@@ -20,6 +20,9 @@ resource "aws_s3_bucket_versioning" "web" {
   }
 }
 
+# SSE-S3 is accepted for synthetic static assets in staging.
+# A customer-managed KMS key is required before Pilot Production activation.
+#trivy:ignore:AWS-0132
 resource "aws_s3_bucket_server_side_encryption_configuration" "web" {
   bucket = aws_s3_bucket.web.id
 

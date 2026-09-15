@@ -463,6 +463,8 @@ async function runTrivyValidation() {
       "--ignore-unfixed",
       "--exit-code",
       "1",
+      "--timeout",
+      "15m",
       "--format",
       "json",
       "--output",

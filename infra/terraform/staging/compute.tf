@@ -111,6 +111,9 @@ resource "aws_iam_role_policy" "worker_queue" {
   policy = data.aws_iam_policy_document.worker_queue.json
 }
 
+# Public HTTPS is intentional for browser and Edge clients in synthetic staging.
+# Tasks remain private, accept traffic only from this ALB, and expose no public IP.
+#trivy:ignore:AWS-0053
 resource "aws_lb" "api" {
   name               = substr(replace("${local.name}-api", "_", "-"), 0, 32)
   internal           = false

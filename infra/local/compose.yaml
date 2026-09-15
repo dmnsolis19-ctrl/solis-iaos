@@ -49,8 +49,7 @@ services:
     volumes:
       - ./localstack-init.sh:/etc/localstack/init/ready.d/10-create-queues.sh:ro
     healthcheck:
-      test:
-        ["CMD-SHELL", "curl -fsS http://127.0.0.1:4566/_localstack/health | grep -q 'available'"]
+      test: ["CMD-SHELL", "awslocal sqs list-queues >/dev/null 2>&1"]
       interval: 5s
       timeout: 10s
       retries: 60

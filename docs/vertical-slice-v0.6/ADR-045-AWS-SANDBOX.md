@@ -1,4 +1,4 @@
-﻿# ADR-045 — AWS Sandbox sintético
+# ADR-045 — AWS Sandbox sintético
 
 | Campo | Valor |
 |---|---|
@@ -72,4 +72,3 @@ Detener el despliegue si:
 V0.6 finaliza cuando el gateway sintético publica mensajes autorizados, los
 mensajes llegan a SQS, los fallos llegan a DLQ, los accesos incorrectos son
 rechazados y existe evidencia de costos, seguridad y destrucción controlada.
-

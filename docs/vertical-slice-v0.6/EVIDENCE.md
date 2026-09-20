@@ -1,15 +1,15 @@
 # Evidencia V0.6 AWS Sandbox
 
-| Campo | Resultado |
-|---|---|
-| Fecha | 2026-09-20 |
-| Region | sa-east-1 |
-| Entorno | readiness sintetico |
-| Commit del gate | 20b752b |
-| Veredicto | PASS |
-| Recursos Terraform | 8 |
-| Deriva final | Ninguna |
-| Colas al finalizar | SQS 0, DLQ 0 |
+| Campo              | Resultado           |
+| ------------------ | ------------------- |
+| Fecha              | 2026-09-20          |
+| Region             | sa-east-1           |
+| Entorno            | readiness sintetico |
+| Commit del gate    | 20b752b             |
+| Veredicto          | PASS                |
+| Recursos Terraform | 8                   |
+| Deriva final       | Ninguna             |
+| Colas al finalizar | SQS 0, DLQ 0        |
 
 ## Controles previos
 

@@ -1,12 +1,12 @@
 # ADR-045 — AWS Sandbox sintético
 
-| Campo | Valor |
-|---|---|
-| Estado | Aceptado para V0.6 AWS Sandbox |
-| Fecha | 20-09-2026 |
-| Extiende | ADR-044 |
-| Región | sa-east-1 |
-| Entorno | sandbox nonprod |
+| Campo    | Valor                          |
+| -------- | ------------------------------ |
+| Estado   | Aceptado para V0.6 AWS Sandbox |
+| Fecha    | 20-09-2026                     |
+| Extiende | ADR-044                        |
+| Región   | sa-east-1                      |
+| Entorno  | sandbox nonprod                |
 
 ## Contexto
 

@@ -19,6 +19,6 @@ output "gateway_policy_name" {
 }
 
 output "ingestion_enabled" {
-  description = "Must remain false throughout V0.5 readiness."
+  description = "Reports whether the approved V0.6 ingestion gate is active."
   value       = aws_iot_topic_rule.telemetry.enabled
 }

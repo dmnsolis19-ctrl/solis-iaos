@@ -37,4 +37,4 @@ finally {
     Pop-Location
 }
 
-Write-Host "PASS: V0.5 AWS IoT readiness validado sin plan ni apply."
+Write-Host "PASS: V0.6 AWS IoT readiness validado sin plan ni apply."

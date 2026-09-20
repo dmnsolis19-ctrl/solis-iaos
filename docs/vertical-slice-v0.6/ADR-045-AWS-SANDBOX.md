@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Estado | Propuesto |
+| Estado | Aceptado para V0.6 AWS Sandbox |
 | Fecha | 20-09-2026 |
 | Extiende | ADR-044 |
 | Región | sa-east-1 |
@@ -72,3 +72,4 @@ Detener el despliegue si:
 V0.6 finaliza cuando el gateway sintético publica mensajes autorizados, los
 mensajes llegan a SQS, los fallos llegan a DLQ, los accesos incorrectos son
 rechazados y existe evidencia de costos, seguridad y destrucción controlada.
+

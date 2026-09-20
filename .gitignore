@@ -16,3 +16,5 @@ crash.log
 .DS_Store
 *.zip
 *.tsbuildinfo
+
+infra/terraform/iot-readiness/readiness.tfvars

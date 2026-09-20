@@ -1,4 +1,4 @@
-# AWS IoT readiness V0.5
+# AWS IoT readiness V0.6
 
 Pila Terraform aislada para validar la arquitectura IoT antes de autorizar una
 cuenta o despliegue. Detalla ADR-038 sin reemplazar `../staging`.
@@ -27,11 +27,11 @@ terraform -chdir=.\infra\terraform\iot-readiness validate
 ```
 
 `init -backend=false` descarga el provider y genera archivos locales, pero no
-crea recursos AWS. No ejecutar `plan` ni `apply` durante V0.5.
+crea recursos AWS. En V0.6, `plan` y `apply` requieren ADR-045 aceptado, controles de costo activos y revision previa del plan.
 
 ## Stop conditions
 
-- `enable_ingestion` distinto de `false`;
+- `enable_ingestion=true` sin `ingestion_activation_approved=true`;
 - certificado, cuenta, presupuesto o residencia sin aprobar;
 - policy con comodín de tenant/gateway;
 - topics de comando, setpoint o escritura OT;

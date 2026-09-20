@@ -48,13 +48,22 @@ variable "gateway_id" {
   }
 }
 
+variable "ingestion_activation_approved" {
+  description = "Explicit approval recorded after the V0.6 security gate passes."
+  type        = bool
+  default     = false
+}
+
 variable "enable_ingestion" {
-  description = "Explicit deployment gate for the IoT Rule. It remains false in V0.5 readiness."
+  description = "Deployment gate for the AWS IoT telemetry rule."
   type        = bool
   default     = false
 
   validation {
-    condition     = var.enable_ingestion == false
-    error_message = "V0.5 readiness must not enable cloud ingestion."
+    condition = (
+      var.enable_ingestion == false ||
+      var.ingestion_activation_approved == true
+    )
+    error_message = "Enabling ingestion requires the approved V0.6 security gate."
   }
 }

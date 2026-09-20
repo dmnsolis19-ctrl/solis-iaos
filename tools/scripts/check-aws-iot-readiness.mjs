@@ -18,6 +18,7 @@ const requiredFiles = [
   "docs/vertical-slice-v0.5/SECURITY-GATE.md",
   "docs/vertical-slice-v0.5/LOCAL-RUNBOOK.md",
   "docs/vertical-slice-v0.5/RELEASE-NOTES.md",
+  "docs/vertical-slice-v0.6/ADR-045-AWS-SANDBOX.md",
 ];
 
 await Promise.all(requiredFiles.map((file) => access(resolve(root, file))));
@@ -43,8 +44,11 @@ for (const resource of [
 if (!contents.includes("enabled     = var.enable_ingestion")) {
   throw new Error("AWS IoT Rule must be controlled by the deployment gate.");
 }
-if (!contents.includes("condition     = var.enable_ingestion == false")) {
-  throw new Error("V0.5 must statically prevent enabling cloud ingestion.");
+if (!contents.includes('variable "ingestion_activation_approved"')) {
+  throw new Error("V0.6 must declare the independent activation approval gate.");
+}
+if (!contents.includes("var.ingestion_activation_approved == true")) {
+  throw new Error("Cloud ingestion must require explicit V0.6 approval.");
 }
 if (!contents.includes('actions   = ["sqs:SendMessage"]')) {
   throw new Error("IoT Rule role must be limited to SQS SendMessage.");
@@ -68,13 +72,14 @@ if (/access_key|secret_key|BEGIN (?:RSA |EC )?PRIVATE KEY/iu.test(contents)) {
 console.log(
   JSON.stringify({
     event: "aws-iot-readiness.static-check",
-    version: "0.5.0",
+    version: "0.6.0",
     region: "sa-east-1",
     mqttContract: "v1-unchanged",
     gatewayPolicy: "publish-only",
-    ingestionEnabled: false,
+    ingestionEnabledByDefault: false,
+    activationApprovalRequired: true,
     queues: 2,
     certificatesManagedByTerraform: false,
-    deploymentPerformed: false,
+    runtimeStateEvaluated: false,
   }),
 );

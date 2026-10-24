@@ -47,4 +47,26 @@ describe("foundation health endpoints", () => {
     expect(response.statusCode).toBe(200);
     expect(response.headers["x-correlation-id"]).not.toBe("not-a-valid-id");
   });
+
+  it("keeps liveness but refuses product readiness in production", async () => {
+    const previous = process.env.NODE_ENV;
+    process.env.NODE_ENV = "production";
+    try {
+      const app = await createApp();
+      apps.push(app);
+      await app.init();
+      const live = await app.inject({ method: "GET", url: "/health/live" });
+      const ready = await app.inject({ method: "GET", url: "/health/ready" });
+      expect(live.statusCode).toBe(200);
+      expect(ready.statusCode).toBe(503);
+      expect(ready.json()).toMatchObject({
+        status: "not_ready",
+        mode: "foundation",
+        blockers: ["PRODUCT_INTEGRATIONS_NOT_IMPLEMENTED"],
+      });
+    } finally {
+      if (previous === undefined) delete process.env.NODE_ENV;
+      else process.env.NODE_ENV = previous;
+    }
+  });
 });

@@ -6,6 +6,8 @@ import { parseServiceEnvironment } from "@solis/config";
 import { createLogger, resolveCorrelationId, runWithCorrelation } from "@solis/observability";
 
 import { FoundationModule } from "./foundation.module.js";
+import { configuredReadRuntime } from "./read-runtime.js";
+import { registerReadRoutes } from "./read-routes.js";
 import { StructuredLogger } from "./structured-logger.js";
 
 export async function createApp(): Promise<NestFastifyApplication> {
@@ -18,6 +20,9 @@ export async function createApp(): Promise<NestFastifyApplication> {
     requestTimeout: 15_000,
   });
   const fastify = adapter.getInstance();
+  const runtime = configuredReadRuntime(process.env, (event) => {
+    logger.info({ event: "api.read", ...event }, "Read API operation");
+  });
 
   fastify.addHook("onRequest", (request, reply, done) => {
     const header = request.headers["x-correlation-id"];
@@ -26,6 +31,7 @@ export async function createApp(): Promise<NestFastifyApplication> {
     reply.header("x-correlation-id", correlationId);
     runWithCorrelation(correlationId, done);
   });
+
 
   const app = await NestFactory.create<NestFastifyApplication>(FoundationModule, adapter, {
     bufferLogs: true,
@@ -38,6 +44,11 @@ export async function createApp(): Promise<NestFastifyApplication> {
   await app.register(cors, {
     origin: false,
   });
+
+  if (runtime !== undefined) {
+    registerReadRoutes(fastify, runtime.execute);
+    fastify.addHook("onClose", async () => runtime.close());
+  }
 
   return app;
 }

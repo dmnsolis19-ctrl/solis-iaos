@@ -22,6 +22,7 @@
     "@nestjs/core": "11.1.28",
     "@nestjs/platform-fastify": "11.1.28",
     "@solis/config": "workspace:*",
+    "@solis/database": "workspace:*",
     "@solis/observability": "workspace:*",
     "fastify": "5.10.0",
     "pino": "10.3.1",

@@ -8,17 +8,21 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "build": "tsc -p tsconfig.build.json && node scripts/copy-schema.mjs",
     "dev": "tsx watch src/main.ts",
     "start": "node dist/main.js",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test:unit": "vitest run",
-    "test:integration": "vitest run --passWithNoTests"
+    "test:integration": "vitest run --passWithNoTests",
+    "publish:synthetic": "node scripts/publish-synthetic.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-sqs": "3.1095.0",
     "@solis/config": "workspace:*",
-    "@solis/observability": "workspace:*"
+    "@solis/database": "workspace:*",
+    "@solis/observability": "workspace:*",
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1"
   },
   "devDependencies": {
     "@types/node": "24.13.3",

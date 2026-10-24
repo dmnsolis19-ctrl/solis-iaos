@@ -1,4 +1,5 @@
-import { Controller, Get, Module } from "@nestjs/common";
+import { Controller, Get, Module, ServiceUnavailableException } from "@nestjs/common";
+import { foundationReadiness } from "@solis/config";
 import { currentCorrelationId, currentTraceId } from "@solis/observability";
 
 interface HealthResponse {
@@ -25,8 +26,12 @@ class HealthController {
   }
 
   @Get("ready")
-  public ready(): HealthResponse {
-    return this.live();
+  public ready() {
+    const readiness = foundationReadiness(process.env.NODE_ENV ?? "development");
+    if (!readiness.ready) {
+      throw new ServiceUnavailableException({ status: "not_ready", ...readiness });
+    }
+    return { ...this.live(), ...readiness };
   }
 }
 

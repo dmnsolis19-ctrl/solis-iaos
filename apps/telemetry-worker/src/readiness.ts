@@ -11,6 +11,7 @@ export async function checkQueueReadiness(options: QueueReadinessOptions): Promi
 
   const client = new SQSClient({
     region: options.region,
+    maxAttempts: 1,
     ...(options.endpoint === undefined ? {} : { endpoint: options.endpoint }),
   });
 
@@ -20,6 +21,7 @@ export async function checkQueueReadiness(options: QueueReadinessOptions): Promi
         QueueUrl: options.queueUrl,
         AttributeNames: ["QueueArn"],
       }),
+      { abortSignal: AbortSignal.timeout(2_000) },
     );
     return true;
   } catch {

@@ -1,7 +1,7 @@
 import { Client } from "pg";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
-import { migrateUp, migrationStatus } from "../src/index.js";
+import { migrateUp, migrationStatus, withTenantTransaction } from "../src/index.js";
 
 const hasDatabase = process.env.TEST_DATABASE === "true";
 const describeWithDatabase = hasDatabase ? describe : describe.skip;
@@ -38,7 +38,7 @@ describeWithDatabase("PostgreSQL V1.2 migrations and RLS", () => {
     expect(await migrateUp(config)).toEqual([]);
     const status = await migrationStatus(config);
 
-    expect(status).toHaveLength(2);
+    expect(status).toHaveLength(3);
     expect(status.every((migration) => migration.applied)).toBe(true);
     expect(status.every((migration) => migration.appliedChecksum === migration.checksum)).toBe(
       true,
@@ -168,5 +168,49 @@ describeWithDatabase("PostgreSQL V1.2 migrations and RLS", () => {
     );
     await owner.end();
     expect(preserved.rows).toEqual([{ name: "Tenant B" }]);
+  });
+
+  it("uses the transaction helper without leaking context on the same real connection", async () => {
+    const client = new Client(config);
+    await client.connect();
+    try {
+      // The test owner impersonates a non-privileged session; production uses its own login.
+      await client.query("SET SESSION AUTHORIZATION solis_api_runtime");
+      let destroyed = false;
+      const pool = {
+        async connect() {
+          return {
+            query: (sql: string, values?: unknown[]) => client.query(sql, values),
+            release: (destroy = false) => { destroyed ||= destroy; },
+          };
+        },
+      };
+      for (const tenantId of [tenantA, tenantB]) {
+        const rows = await withTenantTransaction(
+          pool,
+          { tenantId, role: "solis_api_runtime" },
+          async (connection) => {
+            const visible = await connection.query("SELECT id FROM control_plane.tenant");
+            const hidden = await connection.query(
+              "SELECT id FROM control_plane.tenant WHERE id <> $1", [tenantId],
+            );
+            expect(hidden.rows).toEqual([]);
+            return visible.rows;
+          },
+        );
+        expect(rows).toEqual([{ id: tenantId }]);
+        expect((await client.query("SELECT id FROM control_plane.tenant")).rows).toEqual([]);
+      }
+      await expect(withTenantTransaction(
+        pool,
+        { tenantId: tenantA, role: "solis_api_runtime" },
+        async () => { throw new Error("ROLLBACK_TEST"); },
+      )).rejects.toThrow("ROLLBACK_TEST");
+      expect((await client.query("SELECT id FROM control_plane.tenant")).rows).toEqual([]);
+      expect(destroyed).toBe(false);
+    } finally {
+      await client.query("RESET SESSION AUTHORIZATION").catch(() => undefined);
+      await client.end();
+    }
   });
 });

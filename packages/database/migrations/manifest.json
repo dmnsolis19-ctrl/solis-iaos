@@ -8,5 +8,10 @@
     "id": "0002_runtime_roles",
     "up": "0002_runtime_roles.up.sql",
     "down": "0002_runtime_roles.down.sql"
+  },
+  {
+    "id": "0003_telemetry_runtime",
+    "up": "0003_telemetry_runtime.up.sql",
+    "down": "0003_telemetry_runtime.down.sql"
   }
 ]

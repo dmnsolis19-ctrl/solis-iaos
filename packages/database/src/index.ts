@@ -3,7 +3,22 @@ import { readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { Client, type ClientConfig } from "pg";
+import { Client, Pool, type ClientConfig, type PoolConfig } from "pg";
+
+export { Client };
+
+export function createRuntimePool(config: PoolConfig): Pool {
+  return new Pool(config);
+}
+
+export { withTenantTransaction } from "./tenant-transaction.js";
+export type {
+  RuntimeRole,
+  TenantConnection,
+  TenantPool,
+  TenantTransactionOptions,
+} from "./tenant-transaction.js";
+export { seedSynthetic, syntheticTenants } from "./synthetic.js";
 
 interface MigrationDefinition {
   id: string;

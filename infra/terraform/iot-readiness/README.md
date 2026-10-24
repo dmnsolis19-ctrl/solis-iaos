@@ -36,3 +36,18 @@ crea recursos AWS. En V0.6, `plan` y `apply` requieren ADR-045 aceptado, control
 - policy con comodín de tenant/gateway;
 - topics de comando, setpoint o escritura OT;
 - credenciales estáticas o archivos de claves dentro del repositorio.
+
+## Cambios de código V0.7 (pendientes de validación Terraform y despliegue)
+
+La regla tiene ahora `error_action` SQS hacia la DLQ ya existente. El rol solo
+puede enviar a las dos colas concretas, y su trust policy exige la cuenta y el
+ARN exactos de esta regla. No se agregan recursos ni se modifica el gate de
+activación. Las evidencias V0.6 siguen describiendo exclusivamente V0.6.
+
+La DLQ puede contener mensajes canónicos que falló el consumidor y wrappers de
+error IoT. No ejecutar redrive indiscriminado: consultar
+`docs/saas-integration-v0.7/IOT-ERROR-RECOVERY.md`.
+
+La V0.7 no fue aplicada a AWS. Es obligatorio ejecutar `fmt`, `init`,
+`validate` y revisar el nuevo plan antes de desplegar. Si no se dispone del
+provider fijado, conservar el cambio como candidato sin activar.

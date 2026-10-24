@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+export { foundationReadiness } from "./foundation-readiness.js";
+
 const baseEnvironmentSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "staging", "production"]).default("development"),
   SERVICE_NAME: z.string().min(1).default("solis-iaos"),

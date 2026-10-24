@@ -4,7 +4,7 @@ output "telemetry_queue_url" {
 }
 
 output "telemetry_dlq_url" {
-  description = "Dead-letter queue for poison messages."
+  description = "Existing quarantine queue for consumer failures and IoT error-action wrappers. Inspect message format before replay."
   value       = aws_sqs_queue.telemetry_dlq.id
 }
 

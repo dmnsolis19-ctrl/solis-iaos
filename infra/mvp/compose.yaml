@@ -11,7 +11,7 @@ services:
       SOLIS_TENANT_ID: ${SOLIS_TENANT_ID:?SOLIS_TENANT_ID is required}
       SOLIS_GATEWAY_ID: ${SOLIS_GATEWAY_ID:?SOLIS_GATEWAY_ID is required}
     ports:
-      - "${MQTT_PORT:-1883}:1884"
+      - "127.0.0.1:${MQTT_PORT:-1883}:1884"
     volumes:
       - mqtt-data:/mosquitto/data
     healthcheck:

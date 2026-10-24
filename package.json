@@ -1,8 +1,8 @@
 {
   "name": "solis-iaos",
-  "version": "0.5.0",
+  "version": "0.8.0",
   "private": true,
-  "description": "SOLIS IAOS Foundation plus V0.5 AWS IoT readiness",
+  "description": "SOLIS IAOS: API multiempresa e ingesta sintética PostgreSQL V0.8",
   "license": "UNLICENSED",
   "packageManager": "pnpm@11.17.0",
   "engines": {
@@ -53,7 +53,12 @@
     "checksums": "node tools/scripts/generate-checksums.mjs",
     "mvp:check": "node tools/scripts/check-mvp.mjs",
     "aws:iot:check": "node tools/scripts/check-aws-iot-readiness.mjs",
-    "ci": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm boundaries && pnpm contracts:validate && pnpm contracts:compat && pnpm db:schema:sync && pnpm db:rls:static && pnpm test:unit && pnpm mvp:check && pnpm aws:iot:check && pnpm build"
+    "ci": "pnpm test:hardening && pnpm format:check && pnpm lint && pnpm typecheck && pnpm boundaries && pnpm contracts:validate && pnpm contracts:compat && pnpm db:schema:sync && pnpm db:rls:static && pnpm test:unit && pnpm mvp:check && pnpm aws:iot:check && pnpm build",
+    "test:hardening": "node --test tools/tests/*.test.mjs",
+    "saas:check": "node tools/scripts/verify-saas-hardening.mjs",
+    "db:seed:synthetic": "pnpm --filter @solis/database migrate seed-synthetic",
+    "db:partitions": "pnpm --filter @solis/database migrate partitions",
+    "telemetry:synthetic": "pnpm --filter @solis/telemetry-worker publish:synthetic"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

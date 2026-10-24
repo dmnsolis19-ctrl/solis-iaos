@@ -1,4 +1,96 @@
-# SOLIS IAOS — V0.5 AWS IoT Readiness
+# SOLIS IAOS — V0.8 API de lectura e ingesta local
+
+Esta entrega conecta el código de la API multiempresa y del consumidor de
+telemetría con PostgreSQL, conservando las unidades y contratos existentes.
+**Es un candidato local: no se ha certificado la compilación completa, el
+PostgreSQL real ni un despliegue cloud.**
+
+- Cinco endpoints GET: tenant, sitios, activos por sitio, detalle de activo y
+  último valor. Autenticación Cognito RS256 y autorización por membership/sitio.
+- Consumer LocalStack/SQS con Ajv, gateway/config/mapping, ledger idempotente,
+  inserción batch, latest ordenado, ACK posterior al commit y visibilidad renovable.
+- Migración 0003 para identidad MQTT explícita, hash, orden y particiones con RLS.
+- Seed de dos empresas sintéticas, logins runtime separados y publicador/replay local.
+- 180 pruebas nativas acumuladas, más pruebas de API/PostgreSQL pendientes de ejecución.
+
+Los flags SOLIS_READ_API_ENABLED y SOLIS_INGESTION_ENABLED están apagados por
+defecto. Solo aceptan development/test; el consumidor exige LocalStack. No hay
+login web/PKCE, históricos, alarmas ni dashboard de producto en esta versión.
+
+Comprobar sin descargar paquetes:
+
+```bash
+node tools/scripts/verify-saas-hardening.mjs
+```
+
+Continuar con [el runbook local](docs/saas-integration-v0.8/LOCAL-RUNBOOK.md),
+[la decisión de integración](docs/saas-integration-v0.8/ADR-047-LOCAL-DOMAIN-INTEGRATION.md)
+y [los resultados y límites](docs/saas-integration-v0.8/VALIDATION.md).
+Los documentos de versiones anteriores se conservan como evidencia histórica.
+
+---
+
+## Historial: V0.7 Base de integración SaaS
+
+Revisión de la rama `main` en `d4553c2961f2b1c5c899b8be76057199d88ac3ac`.
+El ZIP suministrado coincide con los blobs del repositorio salvo finales de línea
+CRLF/LF en cuatro scripts PowerShell. Esta entrega contiene mejoras locales;
+no se ha publicado ni desplegado.
+
+**Estado real:** Foundation + laboratorio sintético + sandbox IoT. Todavía no
+es un SaaS integrado. La API/web y el worker mantienen su scaffold V0.2; los
+contratos y las migraciones existentes se conservan sin cambios.
+
+## Cambios V0.7
+
+- Ejecutor de transacciones con tenant y rol locales, rechazo de logins
+  privilegiados, límites de consulta y descarte de conexiones dañadas.
+- Frontera de ingesta que coteja topic, client ID, gateway registrado y versión
+  activa. Requiere un validador del JSON Schema canónico y una cola protegida.
+- Primitiva de entrega que confirma el mensaje solo después del commit;
+  los fallos quedan disponibles para retry/DLQ.
+- API/worker Foundation devuelven readiness 503 en staging/producción hasta
+  implementar y verificar las integraciones de producto. Liveness no cambia.
+- Probe SQS con un intento y plazo de aborto de dos segundos.
+- AWS IoT con `error_action` hacia la DLQ existente y trust IAM limitado a
+  cuenta/regla. Es una modificación de código Terraform, no un cambio aplicado.
+- Puertos publicados de ambos laboratorios enlazados a `127.0.0.1`.
+- Pruebas nuevas sin paquetes externos, integradas antes de la instalación en CI.
+
+Los módulos de transacción, frontera y entrega son **primitivas preparadas y
+probadas de forma aislada**. Aún falta conectarlas al consumidor, al repositorio
+PostgreSQL y a la validación de mappings. No activan ingesta por sí solas.
+
+## Verificar esta entrega
+
+Con Node.js 24 del proyecto, sin instalar paquetes:
+
+```bash
+node tools/scripts/verify-saas-hardening.mjs
+```
+
+Pruebas individuales:
+
+```bash
+node --test tools/tests/*.test.mjs
+node tools/scripts/check-aws-iot-readiness.mjs
+node tools/scripts/check-contract-sync.mjs
+node tools/scripts/check-schema-sync.mjs
+node tools/scripts/check-rls-sql.mjs
+```
+
+Las pruebas de API/PostgreSQL se ampliaron y requieren las dependencias e
+infraestructura documentadas más abajo. La validación completa sigue siendo
+`pnpm ci` y `pnpm sprint0b`; los tests anteriores no las reemplazan.
+
+**Empezar por:** [revisión y plan SaaS](docs/saas-integration-v0.7/REVIEW-AND-PLAN.md),
+[decisión local](docs/saas-integration-v0.7/ADR-046-SAAS-INTEGRATION-HARDENING.md),
+[validación](docs/saas-integration-v0.7/VALIDATION.md) y
+[runbook de errores IoT](docs/saas-integration-v0.7/IOT-ERROR-RECOVERY.md).
+
+---
+
+## V0.5 AWS IoT Readiness
 
 V0.5 prepara de forma estática una ruta AWS IoT Core → SQS/DLQ con identidad
 por gateway y mínimo privilegio. No usa credenciales, no crea certificados y no

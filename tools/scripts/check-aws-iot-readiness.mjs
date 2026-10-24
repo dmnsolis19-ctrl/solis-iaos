@@ -53,6 +53,12 @@ if (!contents.includes("var.ingestion_activation_approved == true")) {
 if (!contents.includes('actions   = ["sqs:SendMessage"]')) {
   throw new Error("IoT Rule role must be limited to SQS SendMessage.");
 }
+if (!/error_action\s*\{\s*sqs\s*\{/u.test(contents)) {
+  throw new Error("AWS IoT must preserve action failures in the existing DLQ.");
+}
+if (!contents.includes("aws:SourceAccount") || !contents.includes("aws:SourceArn")) {
+  throw new Error("The IoT Rule trust policy must be scoped to its account and rule.");
+}
 if (!contents.includes("sqs_managed_sse_enabled")) {
   throw new Error("Readiness queues must enable encryption at rest.");
 }
@@ -72,13 +78,15 @@ if (/access_key|secret_key|BEGIN (?:RSA |EC )?PRIVATE KEY/iu.test(contents)) {
 console.log(
   JSON.stringify({
     event: "aws-iot-readiness.static-check",
-    version: "0.6.0",
+    version: "0.7.0",
     region: "sa-east-1",
     mqttContract: "v1-unchanged",
     gatewayPolicy: "publish-only",
     ingestionEnabledByDefault: false,
     activationApprovalRequired: true,
     queues: 2,
+    iotErrorAction: "existing-dlq",
+    roleTrustScopedToRule: true,
     certificatesManagedByTerraform: false,
     runtimeStateEvaluated: false,
   }),

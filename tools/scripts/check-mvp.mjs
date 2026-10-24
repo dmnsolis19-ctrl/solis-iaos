@@ -36,7 +36,7 @@ for (const service of ["mqtt", "influxdb", "node-red", "grafana", "simulator"]) 
 if (/image:\s*\S*:latest(?:\s|$)/u.test(compose)) {
   throw new Error("MVP Compose must not use the latest image tag.");
 }
-if (!compose.includes('"${MQTT_PORT:-1883}:1884"')) {
+if (!compose.includes('"127.0.0.1:${MQTT_PORT:-1883}:1884"')) {
   throw new Error("Authenticated gateway MQTT listener is not published.");
 }
 for (const localOnlyPort of ["INFLUXDB_PORT", "NODE_RED_PORT", "GRAFANA_PORT"]) {
